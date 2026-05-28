@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  min-height: 100vh;
+  background-attachment: fixed;
+}
+
+.weather-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.weather-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3) !important;
+}
+
+table {
+  color: white;
+}
+
+th {
+  font-weight: 600;
+  color: #ffc107;
+}
+
+tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+input:focus, select:focus {
+  outline: 3px solid #ffc107;
+}
