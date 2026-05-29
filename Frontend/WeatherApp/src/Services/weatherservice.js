@@ -1,23 +1,23 @@
 const BASE_URL = "http://localhost:8080/weather";
 
 export async function getWeatherData(city) {
-  const response = await fetch(`${BASE_URL}?city=${city}`);
+  const response = await fetch(`${BASE_URL}?city=${encodeURIComponent(city.trim())}`);
   if (!response.ok) {
-    throw new Error("Failed to load current weather data");
+    throw new Error("Failed to load current weather data parameters");
   }
   return await response.json();
 }
 
 export async function getWeatherHistory(city) {
-  const response = await fetch(`${BASE_URL}/history?city=${city}`);
+  const response = await fetch(`${BASE_URL}/history?city=${encodeURIComponent(city.trim())}`);
   if (!response.ok) {
-    throw new Error("Failed to load historical cache data");
+    throw new Error("Failed to load historical cache data structures");
   }
   return await response.json();
 }
 
 export async function getWeatherForecast(city) {
-  const response = await fetch(`${BASE_URL}/forecast?city=${city}`);
+  const response = await fetch(`${BASE_URL}/forecast?city=${encodeURIComponent(city.trim())}`);
   if (!response.ok) {
     throw new Error("Failed to load 5-day forecast layout attributes");
   }
@@ -31,7 +31,7 @@ export async function registerWeatherAlert(alertPayload) {
     body: JSON.stringify(alertPayload)
   });
   if (!response.ok) {
-    throw new Error("Failed to subscribe to notifications");
+    throw new Error("Failed to subscribe to automated weather notifications");
   }
   return await response.json();
 }

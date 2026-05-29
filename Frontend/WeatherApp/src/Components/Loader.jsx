@@ -3,7 +3,7 @@ import React from 'react'
 const Loader = () => {
   return (
     <div className="loader">
-      Loading...
+      ✨ Syncing real-time atmospheric data streams...
     </div>
   )
 }

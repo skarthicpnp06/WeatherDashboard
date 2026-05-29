@@ -12,40 +12,40 @@ const App = () => {
 
   return (
     <div>
-      <nav style={styles.navbar}>
+      <nav className="navbar">
         <button 
-          style={{...styles.navButton, fontWeight: activePage === 'dashboard' ? 'bold' : 'normal'}} 
+          className={`nav-button ${activePage === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActivePage('dashboard')}
         >
           ☀️ Current Weather
         </button>
         <button 
-          style={{...styles.navButton, fontWeight: activePage === 'forecast' ? 'bold' : 'normal'}} 
+          className={`nav-button ${activePage === 'forecast' ? 'active' : ''}`}
           onClick={() => setActivePage('forecast')}
         >
           📅 5-Day Forecast {currentCity && `(${currentCity})`}
         </button>
         <button 
-          style={{...styles.navButton, fontWeight: activePage === 'compare' ? 'bold' : 'normal'}} 
+          className={`nav-button ${activePage === 'compare' ? 'active' : ''}`}
           onClick={() => setActivePage('compare')}
         >
           ⚔️ Compare Cities
         </button>
         <button 
-          style={{...styles.navButton, fontWeight: activePage === 'analytics' ? 'bold' : 'normal'}} 
+          className={`nav-button ${activePage === 'analytics' ? 'active' : ''}`}
           onClick={() => setActivePage('analytics')}
         >
           📊 Analytics
         </button>
         <button 
-          style={{...styles.navButton, fontWeight: activePage === 'alerts' ? 'bold' : 'normal'}} 
+          className={`nav-button ${activePage === 'alerts' ? 'active' : ''}`}
           onClick={() => setActivePage('alerts')}
         >
           ⏰ Trigger Alerts
         </button>
       </nav>
 
-      <main style={{ padding: '20px' }}>
+      <main>
         {activePage === 'dashboard' && <Dashboard setCurrentCity={setCurrentCity} />}
         {activePage === 'forecast' && <Forecast currentCity={currentCity} />}
         {activePage === 'compare' && <Compare />}
@@ -54,27 +54,6 @@ const App = () => {
       </main>
     </div>
   )
-}
-
-const styles = {
-  navbar: {
-    display: 'flex',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: '15px',
-    background: 'rgba(0, 0, 0, 0.4)',
-    padding: '15px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
-  },
-  navButton: {
-    background: 'none',
-    border: 'none',
-    color: 'white',
-    fontSize: '16px',
-    cursor: 'pointer',
-    padding: '5px 10px',
-    transition: 'font-weight 0.2s ease'
-  }
 }
 
 export default App

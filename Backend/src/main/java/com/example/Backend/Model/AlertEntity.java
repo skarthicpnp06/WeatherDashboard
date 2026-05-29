@@ -14,13 +14,12 @@ public class AlertEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String email;
     private String city;
     
     @Column(name = "target_temp")
     private double targetTemp;
-    
+
     @Column(name = "trigger_condition")
     private String triggerCondition;
 
@@ -30,10 +29,10 @@ public class AlertEntity {
     public void setId(Long id) { this.id = id; }
 
     public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setEmail(String email) { this.email = email != null ? email.trim().toLowerCase() : null; }
 
     public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
+    public void setCity(String city) { this.city = city != null ? city.trim().toLowerCase() : null; }
 
     public double getTargetTemp() { return targetTemp; }
     public void setTargetTemp(double targetTemp) { this.targetTemp = targetTemp; }

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { getWeatherData } from '../Services/weatherservice'
 import WeatherCard from '../Components/WeatherCard'
+import Loader from '../Components/Loader'
+import Errormessage from '../Components/Errormessage'
 
 const Compare = () => {
   const [city1, setCity1] = useState('')
@@ -29,35 +31,45 @@ const Compare = () => {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-      <h2 style={{ color: 'white', textAlign: 'center', marginBottom: '20px' }}>⚔️ Side-by-Side City Comparison</h2>
-      
-      <form onSubmit={handleCompare} style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '30px' }}>
-        <input 
-          type="text" 
-          value={city1} 
-          onChange={(e) => setCity1(e.target.value)} 
-          placeholder="First City..." 
-          style={{ padding: '10px', borderRadius: '5px', border: 'none', width: '200px' }}
-        />
-        <input 
-          type="text" 
-          value={city2} 
-          onChange={(e) => setCity2(e.target.value)} 
-          placeholder="Second City..." 
-          style={{ padding: '10px', borderRadius: '5px', border: 'none', width: '200px' }}
-        />
-        <button type="submit" style={{ padding: '10px 20px', borderRadius: '5px', border: 'none', backgroundColor: '#28a745', color: 'white', cursor: 'pointer' }}>
-          Compare Metrics
-        </button>
-      </form>
+    <div className="container">
+      <div className="glass-panel">
+        <h2 style={{ color: 'white', textAlign: 'center', margin: '0 0 25px 0', fontSize: '26px' }}>⚔️ Side-by-Side City Comparison</h2>
+        
+        <form onSubmit={handleCompare} style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '10px' }}>
+          <input 
+            type="text" 
+            value={city1} 
+            onChange={(e) => setCity1(e.target.value)} 
+            placeholder="First City..." 
+            className="input-control"
+            style={{ maxWidth: '250px' }}
+          />
+          <input 
+            type="text" 
+            value={city2} 
+            onChange={(e) => setCity2(e.target.value)} 
+            placeholder="Second City..." 
+            className="input-control"
+            style={{ maxWidth: '250px' }}
+          />
+          <button type="submit" className="btn-primary">
+            Compare Metrics
+          </button>
+        </form>
 
-      {loading && <p style={{ color: 'white', textAlign: 'center' }}>Syncing comparative dimensions...</p>}
-      {error && <p style={{ color: '#ff6b6b', textAlign: 'center' }}>{error}</p>}
+        {loading && <Loader />}
+        {error && <Errormessage message={error} />}
 
-      <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', justifyContent: 'center' }}>
-        {data1 && <div style={{ flex: '1', minWidth: '300px' }}><WeatherCard weather={data1} /></div>}
-        {data2 && <div style={{ flex: '1', minWidth: '300px' }}><WeatherCard weather={data2} /></div>}
+        {!loading && !error && (data1 || data2) && (
+          <div className="compare-layout">
+            <div className="compare-col">
+              {data1 && <WeatherCard weather={data1} />}
+            </div>
+            <div className="compare-col">
+              {data2 && <WeatherCard weather={data2} />}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

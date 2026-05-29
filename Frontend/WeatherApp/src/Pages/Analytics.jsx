@@ -1,20 +1,34 @@
 import React, { useState, useEffect } from 'react'
 import { getWeatherHistory } from '../Services/weatherservice'
+import Errormessage from '../Components/Errormessage'
+import Loader from '../Components/Loader'
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 const Analytics = ({ currentCity }) => {
-  const [history, setHistory] = useState([])
+  const [historyData, setHistoryData] = useState([])
+  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (!currentCity) return
+    if (!currentCity) {
+      setError("Please search for a city on the dashboard first to load its search trend analytics.")
+      return
+    }
 
     const fetchHistory = async () => {
-      setLoading(true)
-      setError(null)
       try {
+        setLoading(true)
+        setError("")
         const data = await getWeatherHistory(currentCity)
-        setHistory(data)
+        
+        const formattedData = data.map((item, index) => ({
+          name: `Log #${index + 1}`,
+          Temp: Math.round(item.temparature),
+          Humidity: item.humidity,
+          WindSpeed: item.windSpeed
+        }))
+        
+        setHistoryData(formattedData)
       } catch (err) {
         setError(err.message)
       } finally {
@@ -27,46 +41,58 @@ const Analytics = ({ currentCity }) => {
 
   if (!currentCity) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px', color: 'white' }}>
-        <h3>📊 Please look up a city on the weather dashboard to see historical trends.</h3>
+      <div style={{ maxWidth: '600px', margin: '40px auto' }} className="glass-panel">
+        <Errormessage message={error} />
       </div>
     )
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', color: 'white', padding: '20px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>📊 Historical Search Query Logs: {currentCity.toUpperCase()}</h2>
-      
-      {loading && <p style={{ textAlign: 'center' }}>Loading chronological matrix logs...</p>}
-      {error && <p style={{ color: '#ff6b6b', textAlign: 'center' }}>Error: {error}</p>}
+    <div className="container" style={{ maxWidth: '900px' }}>
+      <div className="glass-panel">
+        <h2 style={{ margin: '0 0 10px 0', fontSize: '26px' }}>📊 Cache Insights: <span style={{ color: '#ffc107', textTransform: 'capitalize' }}>{currentCity}</span></h2>
+        
+        {loading && <Loader />}
+        {error && <Errormessage message={error} />}
 
-      {!loading && history.length === 0 && <p style={{ textAlign: 'center' }}>No historical entries log mapped in your database yet.</p>}
+        {!loading && !error && historyData.length === 0 && (
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)', padding: '20px' }}>No historical metrics stored for this city yet.</p>
+        )}
 
-      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.3)' }}>
-              <th style={{ padding: '12px' }}>Query Log ID</th>
-              <th style={{ padding: '12px' }}>Temperature</th>
-              <th style={{ padding: '12px' }}>Feels Like</th>
-              <th style={{ padding: '12px' }}>Humidity</th>
-              <th style={{ padding: '12px' }}>Wind Speed</th>
-              <th style={{ padding: '12px' }}>Conditions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.map((item) => (
-              <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', idx: item.id }}>
-                <td style={{ padding: '12px' }}># {item.id}</td>
-                <td style={{ padding: '12px', fontWeight: 'bold' }}>{item.temparature}°C</td>
-                <td style={{ padding: '12px' }}>{item.feelsLike}°C</td>
-                <td style={{ padding: '12px' }}>{item.humidity}%</td>
-                <td style={{ padding: '12px' }}>{item.windSpeed} m/s</td>
-                <td style={{ padding: '12px', textTransform: 'capitalize', color: '#ddd' }}>{item.description}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {!loading && !error && historyData.length > 0 && (
+          <div>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px', margin: '0 0 25px 0' }}>Tracking data shifts captured across past searches in your database cache:</p>
+            
+            <div className="chart-wrapper">
+              <h3 className="chart-title">🌡️ Temperature Trajectory (°C)</h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={historyData} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.6)" />
+                  <YAxis stroke="rgba(255,255,255,0.6)" />
+                  <Tooltip contentStyle={{ backgroundColor: '#1a2a6c', borderColor: 'rgba(255,255,255,0.2)', color: '#fff' }} />
+                  <Legend />
+                  <Line type="monotone" dataKey="Temp" stroke="#ff4500" strokeWidth={3} activeDot={{ r: 8 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="chart-wrapper" style={{ marginTop: '30px' }}>
+              <h3 className="chart-title">💧 Humidity vs 💨 Wind Speed Trends</h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={historyData} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.6)" />
+                  <YAxis stroke="rgba(255,255,255,0.6)" />
+                  <Tooltip contentStyle={{ backgroundColor: '#1a2a6c', borderColor: 'rgba(255,255,255,0.2)', color: '#fff' }} />
+                  <Legend />
+                  <Bar dataKey="Humidity" fill="#007bff" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="WindSpeed" fill="#28a745" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

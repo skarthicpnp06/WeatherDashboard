@@ -48,4 +48,3 @@ public class WeatherController {
         return alertService.saveAlert(alert);
     }
 }
-

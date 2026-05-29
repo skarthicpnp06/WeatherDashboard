@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,6 @@ import com.example.Backend.Model.WeatherEntity;
 import com.example.Backend.Repository.AlertRepository;
 
 import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
@@ -41,57 +41,94 @@ public class AlertService {
     @Value("${spring.mail.port}")
     private String port;
 
+    /**
+     * Saves or updates the alert AND instantly checks/sends an email right away
+     * without making the user wait for the scheduled background task.
+     */
     public AlertEntity saveAlert(AlertEntity alert) {
         String cleanCity = alert.getCity().trim().toLowerCase();
         String cleanEmail = alert.getEmail().trim().toLowerCase();
         
+        AlertEntity savedEntity = null;
         List<AlertEntity> allAlerts = alertRepository.findAll();
+        
+        // Look for an existing configuration to update
         for (AlertEntity existing : allAlerts) {
             if (existing.getEmail().equalsIgnoreCase(cleanEmail) && existing.getCity().equalsIgnoreCase(cleanCity)) {
                 existing.setTargetTemp(alert.getTargetTemp());
                 existing.setTriggerCondition(alert.getTriggerCondition());
-                return alertRepository.save(existing);
+                savedEntity = alertRepository.save(existing);
+                break;
             }
         }
         
-        alert.setCity(cleanCity);
-        alert.setEmail(cleanEmail);
-        return alertRepository.save(alert);
+        if (savedEntity == null) {
+            alert.setCity(cleanCity);
+            alert.setEmail(cleanEmail);
+            savedEntity = alertRepository.save(alert);
+        }
+
+        // CRITICAL FIX: Instantly process this alert request on the spot!
+        System.out.println("⚡ Instant alert evaluation triggered for user request: " + cleanEmail);
+        evaluateAndTriggerSingleAlert(savedEntity);
+        
+        return savedEntity;
     }
 
-    @Scheduled(fixedRate = 3600000)
+    /**
+     * Background check routine changed from 1 hour to 30 seconds (30000ms)
+     * so that automated checks happen frequently and rapidly in the background!
+     */
+    @Scheduled(fixedRate = 30000)
     public void checkWeatherAlerts() {
         List<AlertEntity> activeAlerts = alertRepository.findAll();
-        
         for (AlertEntity alert : activeAlerts) {
-            try {
-                WeatherEntity currentLiveWeather = weatherService.getWeather(alert.getCity());
-                Double currentTemp = currentLiveWeather.getTemparature();
-                boolean triggered = false;
-
-                if (alert.getTriggerCondition().equalsIgnoreCase("ABOVE") && currentTemp > alert.getTargetTemp()) {
-                    triggered = true;
-                } else if (alert.getTriggerCondition().equalsIgnoreCase("BELOW") && currentTemp < alert.getTargetTemp()) {
-                    triggered = true;
-                }
-
-                if (triggered) {
-                    sendNotificationEmail(alert.getEmail(), alert.getCity(), currentTemp, alert.getTargetTemp(), alert.getTriggerCondition());
-                }
-            } catch (Exception e) {
-                System.out.println("Skipping alert calculation for ID " + alert.getId() + ": " + e.getMessage());
-            }
+            evaluateAndTriggerSingleAlert(alert);
         }
     }
 
-    private void sendNotificationEmail(String toEmail, String city, double currentTemp, double targetTemp, String condition) {
+    /**
+     * Helper method to parse weather conditions and instantly run SMTP transmission.
+     */
+    private void evaluateAndTriggerSingleAlert(AlertEntity alert) {
+        try {
+            WeatherEntity currentLiveWeather = weatherService.getWeather(alert.getCity());
+            double currentTemp = currentLiveWeather.getTemparature();
+            boolean triggered = false;
+
+            if (alert.getTriggerCondition().equalsIgnoreCase("ABOVE") && currentTemp > alert.getTargetTemp()) {
+                triggered = true;
+            } else if (alert.getTriggerCondition().equalsIgnoreCase("BELOW") && currentTemp < alert.getTargetTemp()) {
+                triggered = true;
+            }
+
+            if (triggered) {
+                System.out.println("🎯 Match discovered! Initiating rapid mail transmission to: " + alert.getEmail());
+                sendNotificationEmail(alert.getEmail(), alert.getCity(), currentTemp, alert.getTargetTemp(), alert.getTriggerCondition());
+            } else {
+                System.out.println("🔍 Evaluated " + alert.getCity() + " (" + currentTemp + "°C). Threshold criteria not met for alert conditions.");
+            }
+        } catch (Exception e) {
+            System.err.println("Skipping alert execution sequence for target database ID " + alert.getId() + ": " + e.getMessage());
+        }
+    }
+
+    @Async
+    protected void sendNotificationEmail(String toEmail, String city, double currentTemp, double targetTemp, String condition) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", host);
         props.put("mail.smtp.port", port);
+        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        
+        // Reduced timeouts so connection drops are handled rapidly
+        props.put("mail.smtp.connectiontimeout", "5000"); 
+        props.put("mail.smtp.timeout", "5000");
+        props.put("mail.smtp.writetimeout", "5000");
 
         Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
+            @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);
             }
@@ -114,8 +151,9 @@ public class AlertService {
             Transport.send(message);
             System.out.println("📬 Alert email successfully dispatched to " + toEmail);
 
-        } catch (MessagingException e) {
-            throw new RuntimeException("Failed to transmit email alert", e);
+        } catch (Exception e) {
+            System.err.println("❌ Async transmission failure dropped: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

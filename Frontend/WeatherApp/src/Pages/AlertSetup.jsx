@@ -12,7 +12,7 @@ const AlertSetup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!email || !city || !targetTemp) {
-      setStatus({ type: 'error', msg: 'Please fill out all alert registration boxes.' })
+      setStatus({ type: 'error', msg: 'Please fill out all alert registration fields.' })
       return
     }
 
@@ -28,82 +28,63 @@ const AlertSetup = () => {
 
     try {
       await registerWeatherAlert(payload)
-      setStatus({ type: 'success', msg: `Success! Alerts armed for ${city.toUpperCase()} when temp is ${condition.toLowerCase()} ${targetTemp}°C.` })
+      setStatus({ type: 'success', msg: `Success! Alerts armed for ${city.toUpperCase()} when temp goes ${condition.toLowerCase()} ${targetTemp}°C.` })
       setEmail('')
       setCity('')
       setTargetTemp('')
     } catch (err) {
-      setStatus({ type: 'error', msg: 'Failed to create alert profile. Check connection.' })
+      setStatus({ type: 'error', msg: 'Failed to configure alert configuration profile. Check backend connection.' })
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: '500px', margin: '40px auto', padding: '30px', background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', borderRadius: '15px', color: 'white', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>⏰ Configure Weather Alerts</h2>
-      <p style={{ textAlign: 'center', fontSize: '14px', color: '#eee', marginBottom: '25px' }}>Get immediate email dispatches every time our background scanner runs if criteria parameters are met.</p>
-      
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Email Address</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="yourname@gmail.com" style={styles.inputField} />
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Target City</label>
-          <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Coimbatore" style={styles.inputField} />
-        </div>
-
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <div style={{ flex: '1' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Condition</label>
-            <select value={condition} onChange={(e) => setCondition(e.target.value)} style={styles.inputField}>
-              <option value="ABOVE" style={{color: 'black'}}>Goes ABOVE (📈)</option>
-              <option value="BELOW" style={{color: 'black'}}>Drops BELOW (📉)</option>
-            </select>
+    <div style={{ maxWidth: '550px', margin: '40px auto' }}>
+      <div className="glass-panel">
+        <h2 style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '26px' }}>⏰ Configure Weather Alerts</h2>
+        <p style={{ textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginBottom: '30px' }}>
+          Receive real-time automated email dispatches when the automated engine scans conditions mapping your metrics.
+        </p>
+        
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="form-group">
+            <label className="form-label">Email Address</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="yourname@gmail.com" className="input-control" />
           </div>
-          <div style={{ flex: '1' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Temp Threshold (°C)</label>
-            <input type="number" value={targetTemp} onChange={(e) => setTargetTemp(e.target.value)} placeholder="e.g. 32" style={styles.inputField} />
+
+          <div className="form-group">
+            <label className="form-label">Target City</label>
+            <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Coimbatore" className="input-control" />
           </div>
-        </div>
 
-        <button type="submit" disabled={loading} style={styles.submitBtn}>
-          {loading ? 'Processing Registration...' : 'Activate Alarm Trigger'}
-        </button>
-      </form>
+          <div style={{ display: 'flex', gap: '15px' }}>
+            <div className="form-group" style={{ flex: '1' }}>
+              <label className="form-label">Condition</label>
+              <select value={condition} onChange={(e) => setCondition(e.target.value)} className="input-control">
+                <option value="ABOVE">Goes ABOVE (📈)</option>
+                <option value="BELOW">Drops BELOW (📉)</option>
+              </select>
+            </div>
+            <div className="form-group" style={{ flex: '1' }}>
+              <label className="form-label">Threshold Target (°C)</label>
+              <input type="number" value={targetTemp} onChange={(e) => setTargetTemp(e.target.value)} placeholder="e.g. 32" className="input-control" />
+            </div>
+          </div>
 
-      {status.msg && (
-        <div style={{ marginTop: '20px', padding: '12px', borderRadius: '8px', textAlign: 'center', backgroundColor: status.type === 'success' ? '#28a745' : '#dc3545', fontWeight: 'bold' }}>
-          {status.msg}
-        </div>
-      )}
+          <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: '10px' }}>
+            {loading ? 'Processing Dispatch Setup...' : 'Activate Alarm Trigger'}
+          </button>
+        </form>
+
+        {status.msg && (
+          <div className={`alert-status ${status.type === 'success' ? 'alert-success' : 'alert-danger'}`}>
+            {status.msg}
+          </div>
+        )}
+      </div>
     </div>
   )
-}
-
-const styles = {
-  inputField: {
-    width: '100%',
-    padding: '10px',
-    borderRadius: '6px',
-    border: 'none',
-    boxSizing: 'border-box',
-    fontSize: '15px'
-  },
-  submitBtn: {
-    padding: '12px',
-    borderRadius: '6px',
-    border: 'none',
-    backgroundColor: '#ffc107',
-    color: '#111',
-    fontWeight: 'bold',
-    fontSize: '16px',
-    cursor: 'pointer',
-    marginTop: '10px',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-  }
 }
 
 export default AlertSetup

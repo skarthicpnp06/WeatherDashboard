@@ -27,7 +27,7 @@ public class WeatherEntity {
     private double windSpeed;
     
     private String description;
-
+    
     @Column(name = "forecast_date")
     private String forecastDate;
 
@@ -35,7 +35,7 @@ public class WeatherEntity {
 
     public WeatherEntity(Long id, String city, double temparature, double feelsLike, int humidity, double windSpeed, String description, String forecastDate) {
         this.id = id;
-        this.city = city;
+        this.city = city != null ? city.trim().toLowerCase() : null;
         this.temparature = temparature;
         this.feelsLike = feelsLike;
         this.humidity = humidity;
@@ -48,7 +48,7 @@ public class WeatherEntity {
     public void setId(Long id) { this.id = id; }
 
     public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
+    public void setCity(String city) { this.city = city != null ? city.trim().toLowerCase() : null; }
 
     public double getTemparature() { return temparature; }
     public void setTemparature(double temparature) { this.temparature = temparature; }
