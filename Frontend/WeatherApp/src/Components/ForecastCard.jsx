@@ -3,7 +3,7 @@ import { getWeatherForecast } from '../Services/weatherservice'
 import Loader from '../Components/Loader'
 import Errormessage from '../Components/Errormessage'
 
-const Forecast = ({ currentCity }) => {
+const ForecastCard = ({ currentCity }) => {
   const [forecastData, setForecastData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -80,4 +80,4 @@ const Forecast = ({ currentCity }) => {
   )
 }
 
-export default Forecast
+export default ForecastCard

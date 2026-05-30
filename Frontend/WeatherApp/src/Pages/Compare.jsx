@@ -33,7 +33,7 @@ const Compare = () => {
   return (
     <div className="container">
       <div className="glass-panel">
-        <h2 style={{ color: 'white', textAlign: 'center', margin: '0 0 25px 0', fontSize: '26px' }}>⚔️ Side-by-Side City Comparison</h2>
+        <h2 style={{ color: '#2c3e50', textAlign: 'center', margin: '0 0 25px 0', fontSize: '26px' }}>Side-by-Side City Comparison</h2>
         
         <form onSubmit={handleCompare} style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '10px' }}>
           <input 

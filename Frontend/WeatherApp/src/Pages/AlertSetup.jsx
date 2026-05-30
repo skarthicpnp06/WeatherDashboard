@@ -42,8 +42,8 @@ const AlertSetup = () => {
   return (
     <div style={{ maxWidth: '550px', margin: '40px auto' }}>
       <div className="glass-panel">
-        <h2 style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '26px' }}>⏰ Configure Weather Alerts</h2>
-        <p style={{ textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginBottom: '30px' }}>
+        <h2 style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '26px', color: '#2c3e50' }}>Configure Weather Alerts</h2>
+        <p style={{ textAlign: 'center', fontSize: '14px', color: '#7f8c8d', marginBottom: '30px' }}>
           Receive real-time automated email dispatches when the automated engine scans conditions mapping your metrics.
         </p>
         
@@ -62,8 +62,8 @@ const AlertSetup = () => {
             <div className="form-group" style={{ flex: '1' }}>
               <label className="form-label">Condition</label>
               <select value={condition} onChange={(e) => setCondition(e.target.value)} className="input-control">
-                <option value="ABOVE">Goes ABOVE (📈)</option>
-                <option value="BELOW">Drops BELOW (📉)</option>
+                <option value="ABOVE">Goes ABOVE</option>
+                <option value="BELOW">Drops BELOW</option>
               </select>
             </div>
             <div className="form-group" style={{ flex: '1' }}>

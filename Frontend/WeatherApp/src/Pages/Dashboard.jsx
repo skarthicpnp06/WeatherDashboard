@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { getWeatherData } from '../Services/weatherservice'
 import WeatherCard from '../Components/WeatherCard'
+
 import Loader from '../Components/Loader'
 import Errormessage from '../Components/Errormessage'
 
@@ -38,7 +39,7 @@ const Dashboard = ({ setCurrentCity }) => {
   return (
     <div style={{ maxWidth: '600px', margin: '40px auto 0 auto' }}>
       <div className="glass-panel" style={{ textAlign: 'center' }}>
-        <h1 style={{ color: 'white', margin: '0 0 25px 0', fontSize: '32px', fontWeight: '700' }}>SkySync Weather</h1>
+        <h1 style={{ color: '#2c3e50', margin: '0 0 25px 0', fontSize: '32px', fontWeight: '700' }}>SkySync Weather</h1>
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', marginBottom: '10px' }}>
           <input 
             type="text" 
@@ -53,9 +54,7 @@ const Dashboard = ({ setCurrentCity }) => {
         </form>
 
         {loading && <Loader />}
-        
         {error && !loading && <Errormessage message={error} />}
-        
         {weather && !loading && !error && (
           <div style={{ marginTop: '25px' }}>
             <WeatherCard weather={weather} />
