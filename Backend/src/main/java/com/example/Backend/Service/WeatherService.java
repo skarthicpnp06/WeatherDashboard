@@ -18,7 +18,7 @@ public class WeatherService {
     private WeatherRepository weatherRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String OPENWEATHER_API_KEY = "f5e923868577018c7a11ff3623dafb41";
+    private final String OPENWEATHER_API_KEY = "-f5e923868577018c7a11ff3623dafb41";
     private final String WEATHERAPI_KEY = "4d2f4f3e0060493d95860505262705";
 
     public WeatherEntity getWeather(String city) {
