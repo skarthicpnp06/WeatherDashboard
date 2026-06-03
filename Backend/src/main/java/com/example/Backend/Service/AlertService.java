@@ -41,10 +41,6 @@ public class AlertService {
     @Value("${spring.mail.port}")
     private String port;
 
-    /**
-     * Saves or updates the alert AND instantly checks/sends an email right away
-     * without making the user wait for the scheduled background task.
-     */
     public AlertEntity saveAlert(AlertEntity alert) {
         String cleanCity = alert.getCity().trim().toLowerCase();
         String cleanEmail = alert.getEmail().trim().toLowerCase();
@@ -52,7 +48,6 @@ public class AlertService {
         AlertEntity savedEntity = null;
         List<AlertEntity> allAlerts = alertRepository.findAll();
         
-        // Look for an existing configuration to update
         for (AlertEntity existing : allAlerts) {
             if (existing.getEmail().equalsIgnoreCase(cleanEmail) && existing.getCity().equalsIgnoreCase(cleanCity)) {
                 existing.setTargetTemp(alert.getTargetTemp());
@@ -68,18 +63,13 @@ public class AlertService {
             savedEntity = alertRepository.save(alert);
         }
 
-        // CRITICAL FIX: Instantly process this alert request on the spot!
         System.out.println("⚡ Instant alert evaluation triggered for user request: " + cleanEmail);
         evaluateAndTriggerSingleAlert(savedEntity);
         
         return savedEntity;
     }
 
-    /**
-     * Background check routine changed from 1 hour to 30 seconds (30000ms)
-     * so that automated checks happen frequently and rapidly in the background!
-     */
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 3600000)
     public void checkWeatherAlerts() {
         List<AlertEntity> activeAlerts = alertRepository.findAll();
         for (AlertEntity alert : activeAlerts) {
@@ -87,9 +77,6 @@ public class AlertService {
         }
     }
 
-    /**
-     * Helper method to parse weather conditions and instantly run SMTP transmission.
-     */
     private void evaluateAndTriggerSingleAlert(AlertEntity alert) {
         try {
             WeatherEntity currentLiveWeather = weatherService.getWeather(alert.getCity());
@@ -122,7 +109,6 @@ public class AlertService {
         props.put("mail.smtp.port", port);
         props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
         
-        // Reduced timeouts so connection drops are handled rapidly
         props.put("mail.smtp.connectiontimeout", "5000"); 
         props.put("mail.smtp.timeout", "5000");
         props.put("mail.smtp.writetimeout", "5000");
@@ -154,6 +140,19 @@ public class AlertService {
         } catch (Exception e) {
             System.err.println("❌ Async transmission failure dropped: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    public void deleteSpecificAlert(String email, String city) {
+        String cleanEmail = email.trim().toLowerCase();
+        String cleanCity = city.trim().toLowerCase();
+        
+        List<AlertEntity> activeAlerts = alertRepository.findAll();
+        for (AlertEntity alert : activeAlerts) {
+            if (alert.getEmail().equalsIgnoreCase(cleanEmail) && alert.getCity().equalsIgnoreCase(cleanCity)) {
+                alertRepository.delete(alert);
+                System.out.println("🗑️ Alert configuration removed for email: " + cleanEmail + " in city: " + cleanCity);
+                break;
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { registerWeatherAlert } from '../Services/weatherservice'
+import { registerWeatherAlert, disableWeatherAlert } from '../Services/weatherservice'
 
 const AlertSetup = () => {
   const [email, setEmail] = useState('')
@@ -8,6 +8,10 @@ const AlertSetup = () => {
   const [condition, setCondition] = useState('ABOVE')
   const [status, setStatus] = useState({ type: '', msg: '' })
   const [loading, setLoading] = useState(false)
+
+  const [disableEmail, setDisableEmail] = useState('')
+  const [disableCity, setDisableCity] = useState('')
+  const [disableStatus, setDisableStatus] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -39,12 +43,30 @@ const AlertSetup = () => {
     }
   }
 
+  const handleDisableAlert = async (e) => {
+    e.preventDefault()
+    if (!disableEmail || !disableCity) {
+      setDisableStatus('⚠️ Please enter both your registered email and target city.')
+      return
+    }
+
+    try {
+      setDisableStatus('Processing removal requests...')
+      await disableWeatherAlert(disableEmail, disableCity)
+      setDisableStatus(`✨ Success! Alert monitoring removed for ${disableCity.toUpperCase()} assigned to ${disableEmail}.`)
+      setDisableEmail('')
+      setDisableCity('')
+    } catch (err) {
+      setDisableStatus('❌ Failed to disable alert. Confirm email/city parameters match database records.')
+    }
+  }
+
   return (
     <div style={{ maxWidth: '550px', margin: '40px auto' }}>
       <div className="glass-panel">
-        <h2 style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '26px', color: '#2c3e50' }}>Configure Weather Alerts</h2>
+        <h2 style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '26px' }}>Configure Weather Alerts</h2>
         <p style={{ textAlign: 'center', fontSize: '14px', color: '#7f8c8d', marginBottom: '30px' }}>
-          Receive real-time automated email dispatches when the automated engine scans conditions mapping your metrics.
+          Receive automated email dispatches when conditions break past your preferred metrics.
         </p>
         
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -81,6 +103,43 @@ const AlertSetup = () => {
           <div className={`alert-status ${status.type === 'success' ? 'alert-success' : 'alert-danger'}`}>
             {status.msg}
           </div>
+        )}
+
+        <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '40px 0 30px 0' }} />
+
+        <h3 style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '20px', color: '#e74c3c' }}>🛑 Disable Active Alerts</h3>
+        <p style={{ textAlign: 'center', fontSize: '13px', color: '#7f8c8d', marginBottom: '20px' }}>
+          Stop receiving background notifications for a specific profile setup instantly.
+        </p>
+
+        <form onSubmit={handleDisableAlert} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div className="form-group">
+            <input 
+              type="email" 
+              value={disableEmail} 
+              onChange={(e) => setDisableEmail(e.target.value)} 
+              placeholder="Enter registered email address..." 
+              className="input-control" 
+            />
+          </div>
+          <div className="form-group">
+            <input 
+              type="text" 
+              value={disableCity} 
+              onChange={(e) => setDisableCity(e.target.value)} 
+              placeholder="Enter assigned city name..." 
+              className="input-control" 
+            />
+          </div>
+          <button type="submit" className="btn-primary" style={{ background: '#e74c3c' }}>
+            Turn Off Alert Track
+          </button>
+        </form>
+
+        {disableStatus && (
+          <p style={{ marginTop: '15px', padding: '10px', background: 'rgba(231,76,60,0.1)', borderRadius: '6px', fontSize: '13px', textAlign: 'center', fontWeight: '500' }}>
+            {disableStatus}
+          </p>
         )}
       </div>
     </div>

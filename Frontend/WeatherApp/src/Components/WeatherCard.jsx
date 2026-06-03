@@ -1,7 +1,19 @@
 import React from 'react'
 
-const WeatherCard = ({ weather }) => {
+const WeatherCard = ({ weather, isCelsius, isMetersPerSecond }) => {
   if (!weather) return null
+
+  const displayTemp = (celsiusValue) => {
+    if (isCelsius) return `${Math.round(celsiusValue)}°C`
+    const fahrenheit = (celsiusValue * 9) / 5 + 32
+    return `${Math.round(fahrenheit)}°F`
+  }
+
+  const displayWind = (mpsValue) => {
+    if (isMetersPerSecond) return `${mpsValue.toFixed(1)} m/s`
+    const kph = mpsValue * 3.6
+    return `${kph.toFixed(1)} km/h`
+  }
 
   const getAqiLabel = (aqiValue) => {
     switch (aqiValue) {
@@ -33,8 +45,8 @@ const WeatherCard = ({ weather }) => {
       <p className="weather-desc">✨ {weather.description}</p>
       
       <div className="temp-container">
-        <span className="main-temp">{Math.round(weather.temparature)}°C</span>
-        <span className="feels-temp">Feels like {Math.round(weather.feelsLike)}°C</span>
+        <span className="main-temp">{displayTemp(weather.temparature)}</span>
+        <span className="feels-temp">Feels like {displayTemp(weather.feelsLike)}</span>
       </div>
 
       <hr className="metrics-divider" />
@@ -46,7 +58,7 @@ const WeatherCard = ({ weather }) => {
         </div>
         <div className="metric-item">
           <span className="metric-label">💨 Wind Speed</span>
-          <span className="metric-value">{weather.windSpeed.toFixed(1)} m/s</span>
+          <span className="metric-value">{displayWind(weather.windSpeed)}</span>
         </div>
         <div className="metric-item">
           <span className="metric-label">🍃 Air Quality (AQI)</span>

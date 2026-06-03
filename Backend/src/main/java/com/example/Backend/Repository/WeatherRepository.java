@@ -10,5 +10,6 @@ import com.example.Backend.Model.WeatherEntity;
 @Repository
 public interface WeatherRepository extends JpaRepository<WeatherEntity, Long> {
     List<WeatherEntity> findByCityOrderByIdDesc(String city);
+    WeatherEntity findFirstByCityOrderByIdDesc(String city);
     WeatherEntity findTopByCityOrderByIdDesc(String city);
 }

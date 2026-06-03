@@ -1,15 +1,32 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { getWeatherData } from '../Services/weatherservice'
 import WeatherCard from '../Components/WeatherCard'
-
 import Loader from '../Components/Loader'
 import Errormessage from '../Components/Errormessage'
 
-const Dashboard = ({ setCurrentCity }) => {
+const Dashboard = ({ setCurrentCity, isCelsius, isMetersPerSecond, defaultCity }) => {
   const [inputCity, setInputCity] = useState('')
   const [weather, setWeather] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  useEffect(() => {
+    if (defaultCity && !weather && !loading) {
+      const loadInitialCity = async () => {
+        setLoading(true)
+        try {
+          const data = await getWeatherData(defaultCity)
+          setWeather(data)
+          setCurrentCity(defaultCity)
+        } catch (err) {
+          console.error("Startup default query error: ", err)
+        } finally {
+          setLoading(false)
+        }
+      }
+      loadInitialCity()
+    }
+  }, [defaultCity])
 
   const handleSearch = async (e) => {
     e.preventDefault()
@@ -57,7 +74,7 @@ const Dashboard = ({ setCurrentCity }) => {
         {error && !loading && <Errormessage message={error} />}
         {weather && !loading && !error && (
           <div style={{ marginTop: '25px' }}>
-            <WeatherCard weather={weather} />
+            <WeatherCard weather={weather} isCelsius={isCelsius} isMetersPerSecond={isMetersPerSecond} />
           </div>
         )}
       </div>

@@ -53,6 +53,18 @@ public class WeatherEntity {
         this.precipitation = precipitation;
     }
 
+    public WeatherEntity(String city, double temparature, String description, int humidity, double windSpeed, String apiSource) {
+        this.city = city != null ? city.trim().toLowerCase() : null;
+        this.temparature = temparature;
+        this.feelsLike = temparature;
+        this.humidity = humidity;
+        this.windSpeed = windSpeed;
+        this.description = description;
+        this.apiSource = apiSource;
+        this.aqi = 1;
+        this.precipitation = 0.0;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getCity() { return city; }

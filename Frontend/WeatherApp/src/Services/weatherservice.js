@@ -1,6 +1,5 @@
 const BASE_URL = "http://localhost:8080/weather";
 
-// Primary Real-time Weather Data API
 export async function getWeatherData(city) {
   const response = await fetch(`${BASE_URL}?city=${encodeURIComponent(city.trim())}`); 
   if (!response.ok) {
@@ -9,7 +8,6 @@ export async function getWeatherData(city) {
   return await response.json(); 
 }
 
-// Second Weather API / Route (Ensure it maps here if called directly from UI)
 export async function getSecondaryWeatherData(city) {
   const response = await fetch(`${BASE_URL}/secondary?city=${encodeURIComponent(city.trim())}`);
   if (!response.ok) {
@@ -44,4 +42,28 @@ export async function registerWeatherAlert(alertPayload) {
     throw new Error("Failed to subscribe to automated weather notifications"); 
   }
   return await response.json(); 
+
 }
+
+export async function clearDatabaseCacheHistory() {
+  const response = await fetch(`${BASE_URL}/history/clear`, {
+    method: "DELETE"
+  });
+  if (!response.ok) {
+    throw new Error("Failed to process cache database eviction sequence.");
+  }
+  return await response.json();
+}
+
+
+export async function disableWeatherAlert(email, city) {
+  const response = await fetch(`${BASE_URL}/alerts/disable?email=${encodeURIComponent(email.trim())}&city=${encodeURIComponent(city.trim())}`, {
+    method: "DELETE"
+  });
+  if (!response.ok) {
+    throw new Error("Failed to deactivate your weather alert tracking stream.");
+  }
+  return await response.json();
+}
+
+
