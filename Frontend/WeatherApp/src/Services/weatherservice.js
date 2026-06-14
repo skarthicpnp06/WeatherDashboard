@@ -1,4 +1,7 @@
-const BASE_URL = "http://localhost:8080/weather";
+import React from 'react'
+
+// Dynamic production routing assignment using Vite environment fallbacks
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/weather";
 
 export async function getWeatherData(city) {
   const response = await fetch(`${BASE_URL}?city=${encodeURIComponent(city.trim())}`); 
@@ -42,7 +45,6 @@ export async function registerWeatherAlert(alertPayload) {
     throw new Error("Failed to subscribe to automated weather notifications"); 
   }
   return await response.json(); 
-
 }
 
 export async function clearDatabaseCacheHistory() {
@@ -55,7 +57,6 @@ export async function clearDatabaseCacheHistory() {
   return await response.json();
 }
 
-
 export async function disableWeatherAlert(email, city) {
   const response = await fetch(`${BASE_URL}/alerts/disable?email=${encodeURIComponent(email.trim())}&city=${encodeURIComponent(city.trim())}`, {
     method: "DELETE"
@@ -65,5 +66,3 @@ export async function disableWeatherAlert(email, city) {
   }
   return await response.json();
 }
-
-

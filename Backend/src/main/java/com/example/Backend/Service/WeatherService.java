@@ -5,11 +5,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import com.example.Backend.Model.WeatherEntity;
 import com.example.Backend.Repository.WeatherRepository;
 
@@ -19,8 +18,12 @@ public class WeatherService {
     @Autowired
     private WeatherRepository weatherRepository;
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String OPENWEATHER_API_KEY = "f5e923868577018c7a11ff3623dafb41";
-    private final String WEATHERAPI_KEY = "4d2f4f3e0060493d95860505262705";
+
+    @Value("${openweathermap.api.key}")
+    private String openWeatherApiKey;
+
+    @Value("${weatherapi.key}")
+    private String secondaryWeatherApiKey;
 
     public WeatherEntity getWeather(String city) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -32,7 +35,7 @@ public class WeatherService {
             weatherRepository.save(weather);
             return weather;
         } catch (Exception e) {
-            System.out.println("OpenWeather failed, trying Secondary API... " + e.getMessage());
+            System.out.println("OpenWeather engine failed, falling back to alternative source... " + e.getMessage());
         }
 
         try {
@@ -41,7 +44,7 @@ public class WeatherService {
             weatherRepository.save(weather);
             return weather;
         } catch (Exception e) {
-            System.out.println("Secondary API failed, falling back to Cache... " + e.getMessage());
+            System.out.println("Secondary API engine down, falling back to local database engine... " + e.getMessage());
         }
 
         try {
@@ -51,7 +54,7 @@ public class WeatherService {
                 return cachedData;
             }
         } catch (Exception e) {
-            System.out.println("Cache read failed.");
+            System.out.println("Cache recovery sequence failure.");
         }
 
         WeatherEntity fallback = new WeatherEntity(
@@ -67,7 +70,7 @@ public class WeatherService {
     }
 
     private WeatherEntity getFromOpenWeather(String city) {
-        String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + OPENWEATHER_API_KEY + "&units=metric";
+        String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + openWeatherApiKey + "&units=metric";
         Map response = restTemplate.getForObject(url, Map.class);
 
         Map main = (Map) response.get("main");
@@ -102,7 +105,7 @@ public class WeatherService {
     }
 
     private WeatherEntity getFromWeatherAPI(String city) {
-        String url = "https://api.weatherapi.com/v1/current.json?key=" + WEATHERAPI_KEY + "&q=" + city + "&aqi=yes";
+        String url = "https://api.weatherapi.com/v1/current.json?key=" + secondaryWeatherApiKey + "&q=" + city + "&aqi=yes";
         Map response = restTemplate.getForObject(url, Map.class);
 
         Map location = (Map) response.get("location");
@@ -152,15 +155,16 @@ public class WeatherService {
     }
 
     public Map<String, Object> getForecastData(String city) {
-        String url = "https://api.openweathermap.org/data/2.5/forecast?q=" + city.trim() + "&appid=" + OPENWEATHER_API_KEY + "&units=metric";
+        String url = "https://api.openweathermap.org/data/2.5/forecast?q=" + city.trim() + "&appid=" + openWeatherApiKey + "&units=metric";
         try {
             return restTemplate.getForObject(url, Map.class);
         } catch (Exception e) {
             return Map.of("list", new ArrayList<>());
         }
     }
+
     public void clearAllHistoryCache() {
         weatherRepository.deleteAll();
-        System.out.println("🧹 Database optimization triggered: Purged all saved weather history data metrics.");
+        System.out.println("Database optimization successfully processed.");
     }
 }
