@@ -1,11 +1,10 @@
-FROM maven:3.8.4-openjdk-17 AS build
-WORKDIR /app
+# Step 1: Build the jar using Maven and official Eclipse Temurin image
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 COPY . .
-RUN chmod +x ./mvnw
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
-FROM openjdk:17-jdk-slim
-WORKDIR /app
-COPY --from=build /app/target/Backend-0.0.1-SNAPSHOT.jar app.jar
+# Step 2: Use the official lightweight Eclipse Temurin runtime image
+FROM eclipse-temurin:17-jre-jammy
+COPY --from=build /target/Backend-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
