@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { getWeatherData } from '../Services/weatherservice'
-import WeatherCard from '../Components/WeatherCard'
-import Loader from '../Components/Loader'
-import Errormessage from '../Components/Errormessage'
+import { getWeatherData } from '../Services/weatherservice.js'
+import WeatherCard from '../Components/WeatherCard.jsx'
+import Loader from '../Components/Loader.jsx'
+import Errormessage from '../Components/Errormessage.jsx'
 
 const Compare = () => {
   const [city1, setCity1] = useState('')

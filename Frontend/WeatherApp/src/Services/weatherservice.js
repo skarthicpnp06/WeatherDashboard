@@ -11,13 +11,7 @@ export async function getWeatherData(city) {
   return await response.json(); 
 }
 
-export async function getSecondaryWeatherData(city) {
-  const response = await fetch(`${BASE_URL}/secondary?city=${encodeURIComponent(city.trim())}`);
-  if (!response.ok) {
-    throw new Error("Failed to load secondary weather metrics stream");
-  }
-  return await response.json();
-}
+
 
 export async function getWeatherHistory(city) {
   const response = await fetch(`${BASE_URL}/history?city=${encodeURIComponent(city.trim())}`); 
