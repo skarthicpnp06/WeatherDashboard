@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import Dashboard from './pages/Dashboard'
-import Forecast from './pages/Forecast'
-import Compare from './pages/Compare'
-import Analytics from './pages/Analytics'
-import AlertSetup from './pages/AlertSetup'
-import Settings from './pages/Settings'
+import Dashboard from './Pages/Dashboard'
+import Forecast from './Pages/Forecast'
+import Compare from './Pages/Compare'
+import Analytics from './Pages/Analytics'
+import AlertSetup from './Pages/AlertSetup'
+import Settings from './Pages/Settings'
 import './Styles/dashboard.css'
 
 const App = () => {
