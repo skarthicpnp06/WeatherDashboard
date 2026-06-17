@@ -20,7 +20,7 @@ import com.example.Backend.Service.WeatherService;
 
 @RestController
 @RequestMapping("/weather")
-@CrossOrigin(origins = "${cors.allowed-origins:*}") // Plugs access mappings directly to systemic env flags
+@CrossOrigin(origins = "https://weather-dashboard-987s.vercel.app") // Plugs access mappings directly to systemic env flags
 public class WeatherController {
 
     @Autowired
