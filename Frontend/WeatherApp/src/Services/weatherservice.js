@@ -1,7 +1,7 @@
 import React from 'react'
 
-// Dynamic production routing assignment using Vite environment fallbacks
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/weather";
+
+const API_BASE_URL = "https://weatherdashboard-1.onrender.com/weather";
 
 export async function getWeatherData(city) {
   const response = await fetch(`${BASE_URL}?city=${encodeURIComponent(city.trim())}`); 
