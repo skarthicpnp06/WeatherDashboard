@@ -17,7 +17,7 @@ const Settings = ({
 
   useEffect(() => {
     const checkServer = async () => {
-      const BASE_URL = "https://weatherdashboard-1-5tai.onrender.com";
+      const BASE_URL = "https://weatherdashboard-1-5tai.onrender.com/weather";
       try {
         const res = await fetch(`${BASE_URL}?city=coimbatore`)
         if (res.ok) {
