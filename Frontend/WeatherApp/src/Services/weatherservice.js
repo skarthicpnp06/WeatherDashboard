@@ -1,7 +1,7 @@
 
 
 
-const BASE_URL = "https://weatherdashboard-1.onrender.com/weather";
+const BASE_URL = "https://weatherdashboard-1-5tai.onrender.com/weather";
 
 export async function getWeatherData(city) {
   const response = await fetch(`${BASE_URL}?city=${encodeURIComponent(city.trim())}`); 
