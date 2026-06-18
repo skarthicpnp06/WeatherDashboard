@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +19,7 @@ import com.example.Backend.Service.WeatherService;
 
 @RestController
 @RequestMapping("/weather")
-@CrossOrigin(origins = "https://weather-dashboard-987s.vercel.app") // Plugs access mappings directly to systemic env flags
+
 public class WeatherController {
 
     @Autowired
