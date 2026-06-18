@@ -5,10 +5,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import com.example.Backend.Model.WeatherEntity;
 import com.example.Backend.Repository.WeatherRepository;
 
@@ -35,7 +37,7 @@ public class WeatherService {
             weatherRepository.save(weather);
             return weather;
         } catch (Exception e) {
-            System.out.println("OpenWeather engine failed, falling back to alternative source... " + e.getMessage());
+            System.out.println("OpenWeather failed, trying secondary: " + e.getMessage());
         }
 
         try {
@@ -44,7 +46,7 @@ public class WeatherService {
             weatherRepository.save(weather);
             return weather;
         } catch (Exception e) {
-            System.out.println("Secondary API engine down, falling back to local database engine... " + e.getMessage());
+            System.out.println("Secondary API failed, falling back to database: " + e.getMessage());
         }
 
         try {
@@ -54,17 +56,10 @@ public class WeatherService {
                 return cachedData;
             }
         } catch (Exception e) {
-            System.out.println("Cache recovery sequence failure.");
+            System.out.println("Database fallback failed.");
         }
 
-        WeatherEntity fallback = new WeatherEntity(
-                city,
-                30.0,
-                "Fallback Data",
-                70,
-                10.0,
-                "Static Fallback"
-        );
+        WeatherEntity fallback = new WeatherEntity(city, 30.0, "Fallback Data", 70, 10.0, "Static Fallback");
         fallback.setForecastDate(currentTimestamp);
         return fallback;
     }
@@ -85,7 +80,7 @@ public class WeatherService {
         String condition = (String) weatherData.get("main");
 
         WeatherEntity entity = new WeatherEntity(cityName, temp, condition, humidity, windSpeed, "OpenWeather API");
-        
+
         double precipitationValue = 0.0;
         String lowerDesc = condition.toLowerCase();
         if (lowerDesc.contains("rain") || lowerDesc.contains("drizzle") || lowerDesc.contains("thunderstorm")) {
@@ -94,13 +89,13 @@ public class WeatherService {
             precipitationValue = 0.1 + (Math.random() * 1.2);
         }
         entity.setPrecipitation(precipitationValue);
-        
+
         int calculatedAqi = 1 + (int)(Math.random() * 2);
         if (temp > 34 || humidity > 85) {
             calculatedAqi = 3;
         }
         entity.setAqi(calculatedAqi);
-        
+
         return entity;
     }
 
@@ -119,12 +114,12 @@ public class WeatherService {
         String condition = (String) conditionMap.get("text");
 
         WeatherEntity entity = new WeatherEntity(cityName, temp, condition, humidity, windSpeed, "WeatherAPI (Secondary)");
-        
+
         double precipitationValue = 0.0;
-        if (current != null && current.containsKey("precip_mm")) {
+        if (current.containsKey("precip_mm")) {
             precipitationValue = ((Number) current.get("precip_mm")).doubleValue();
         }
-        
+
         if (precipitationValue == 0.0) {
             String lowerDesc = condition.toLowerCase();
             if (lowerDesc.contains("rain") || lowerDesc.contains("drizzle") || lowerDesc.contains("heavy") || lowerDesc.contains("showers")) {
@@ -135,21 +130,17 @@ public class WeatherService {
         }
         entity.setPrecipitation(precipitationValue);
 
-        if (current != null && current.containsKey("air_quality")) {
+        if (current.containsKey("air_quality")) {
             Map airQuality = (Map) current.get("air_quality");
             if (airQuality.containsKey("us-epa-index")) {
                 int epaIndex = ((Number) airQuality.get("us-epa-index")).intValue();
-                if (epaIndex >= 1 && epaIndex <= 5) {
-                    entity.setAqi(epaIndex);
-                } else {
-                    entity.setAqi(1);
-                }
+                entity.setAqi((epaIndex >= 1 && epaIndex <= 5) ? epaIndex : 1);
             }
         }
 
         return entity;
     }
-    
+
     public List<WeatherEntity> getHistory(String city) {
         return weatherRepository.findByCityOrderByIdDesc(city.trim().toLowerCase());
     }
@@ -165,6 +156,5 @@ public class WeatherService {
 
     public void clearAllHistoryCache() {
         weatherRepository.deleteAll();
-        System.out.println("Database optimization successfully processed.");
     }
 }

@@ -19,7 +19,6 @@ import com.example.Backend.Service.WeatherService;
 
 @RestController
 @RequestMapping("/weather")
-
 public class WeatherController {
 
     @Autowired
@@ -51,12 +50,12 @@ public class WeatherController {
     @DeleteMapping("/history/clear")
     public Map<String, String> clearCacheHistory() {
         weatherService.clearAllHistoryCache();
-        return Map.of("status", "success", "message", "Database search metrics history cleared successfully.");
+        return Map.of("status", "success", "message", "History cleared successfully.");
     }
 
     @DeleteMapping("/alerts/disable")
     public Map<String, String> disableSpecificAlert(@RequestParam String email, @RequestParam String city) {
         alertService.deleteSpecificAlert(email, city);
-        return Map.of("status", "success", "message", "Alert profile successfully disabled.");
+        return Map.of("status", "success", "message", "Alert disabled successfully.");
     }
 }

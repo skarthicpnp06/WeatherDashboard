@@ -14,18 +14,18 @@ public class WeatherEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String city;
     private double temparature;
 
     @Column(name = "feels_like")
     private double feelsLike;
-    
+
     private int humidity;
 
     @Column(name = "wind_speed")
     private double windSpeed;
-    
+
     private String description;
 
     @Column(name = "forecast_date")

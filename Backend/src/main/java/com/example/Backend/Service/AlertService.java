@@ -44,10 +44,10 @@ public class AlertService {
     public AlertEntity saveAlert(AlertEntity alert) {
         String cleanCity = alert.getCity().trim().toLowerCase();
         String cleanEmail = alert.getEmail().trim().toLowerCase();
-        
+
         AlertEntity savedEntity = null;
         List<AlertEntity> allAlerts = alertRepository.findAll();
-        
+
         for (AlertEntity existing : allAlerts) {
             if (existing.getEmail().equalsIgnoreCase(cleanEmail) && existing.getCity().equalsIgnoreCase(cleanCity)) {
                 existing.setTargetTemp(alert.getTargetTemp());
@@ -56,16 +56,14 @@ public class AlertService {
                 break;
             }
         }
-        
+
         if (savedEntity == null) {
             alert.setCity(cleanCity);
             alert.setEmail(cleanEmail);
             savedEntity = alertRepository.save(alert);
         }
 
-        System.out.println("⚡ Instant alert evaluation triggered for user request: " + cleanEmail);
         evaluateAndTriggerSingleAlert(savedEntity);
-        
         return savedEntity;
     }
 
@@ -90,13 +88,10 @@ public class AlertService {
             }
 
             if (triggered) {
-                System.out.println("🎯 Match discovered! Initiating rapid mail transmission to: " + alert.getEmail());
                 sendNotificationEmail(alert.getEmail(), alert.getCity(), currentTemp, alert.getTargetTemp(), alert.getTriggerCondition());
-            } else {
-                System.out.println("🔍 Evaluated " + alert.getCity() + " (" + currentTemp + "°C). Threshold criteria not met for alert conditions.");
             }
         } catch (Exception e) {
-            System.err.println("Skipping alert execution sequence for target database ID " + alert.getId() + ": " + e.getMessage());
+            System.err.println("Skipping alert for ID " + alert.getId() + ": " + e.getMessage());
         }
     }
 
@@ -108,8 +103,7 @@ public class AlertService {
         props.put("mail.smtp.host", host);
         props.put("mail.smtp.port", port);
         props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-        
-        props.put("mail.smtp.connectiontimeout", "5000"); 
+        props.put("mail.smtp.connectiontimeout", "5000");
         props.put("mail.smtp.timeout", "5000");
         props.put("mail.smtp.writetimeout", "5000");
 
@@ -124,33 +118,30 @@ public class AlertService {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            message.setSubject("🚨 SkySync Weather Alert: " + city.toUpperCase());
-            
+            message.setSubject("SkySync Weather Alert: " + city.toUpperCase());
+
             String emailText = String.format(
-                "Hello!\n\nYour SkySync weather trigger has fired.\n" +
-                "The current temperature in %s is %s°C, which is %s your threshold target of %s°C.\n\n" +
-                "Stay prepared!\n- SkySync Weather Engine",
+                "Hello,\n\nYour SkySync weather alert has been triggered.\n" +
+                "The current temperature in %s is %.1f°C, which is %s your threshold of %.1f°C.\n\n" +
+                "Stay prepared.\n— SkySync Weather",
                 city.toUpperCase(), currentTemp, condition.toLowerCase(), targetTemp
             );
-            
+
             message.setText(emailText);
             Transport.send(message);
-            System.out.println("📬 Alert email successfully dispatched to " + toEmail);
-
         } catch (Exception e) {
-            System.err.println("❌ Async transmission failure dropped: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Email send failed: " + e.getMessage());
         }
     }
+
     public void deleteSpecificAlert(String email, String city) {
         String cleanEmail = email.trim().toLowerCase();
         String cleanCity = city.trim().toLowerCase();
-        
+
         List<AlertEntity> activeAlerts = alertRepository.findAll();
         for (AlertEntity alert : activeAlerts) {
             if (alert.getEmail().equalsIgnoreCase(cleanEmail) && alert.getCity().equalsIgnoreCase(cleanCity)) {
                 alertRepository.delete(alert);
-                System.out.println("🗑️ Alert configuration removed for email: " + cleanEmail + " in city: " + cleanCity);
                 break;
             }
         }

@@ -16,7 +16,7 @@ public class AlertEntity {
     private Long id;
     private String email;
     private String city;
-    
+
     @Column(name = "target_temp")
     private double targetTemp;
 
