@@ -1,10 +1,10 @@
-import React from 'react'
 
 
-const API_BASE_URL = "https://weatherdashboard-1.onrender.com/weather";
+
+const BASE_URL = "https://weatherdashboard-1.onrender.com/weather";
 
 export async function getWeatherData(city) {
-  const response = await fetch(`${API_BASE_URL}?city=${encodeURIComponent(city.trim())}`); 
+  const response = await fetch(`${BASE_URL}?city=${encodeURIComponent(city.trim())}`); 
   if (!response.ok) {
     throw new Error("Failed to load current weather data parameters"); 
   }

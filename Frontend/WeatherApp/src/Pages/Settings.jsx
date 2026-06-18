@@ -17,7 +17,7 @@ const Settings = ({
 
   useEffect(() => {
     const checkServer = async () => {
-      const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/weather";
+      const BASE_URL = "https://weatherdashboard-1-5tai.onrender.com";
       try {
         const res = await fetch(`${BASE_URL}?city=coimbatore`)
         if (res.ok) {
