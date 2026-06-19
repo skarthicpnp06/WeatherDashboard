@@ -91,7 +91,7 @@ public class AlertService {
                 sendNotificationEmail(alert.getEmail(), alert.getCity(), currentTemp, alert.getTargetTemp(), alert.getTriggerCondition());
             }
         } catch (Exception e) {
-            System.err.println("Skipping alert for ID " + alert.getId() + ": " + e.getMessage());
+            System.err.println("Alert evaluation skipped for ID " + alert.getId() + ": " + e.getMessage());
         }
     }
 
@@ -121,23 +121,24 @@ public class AlertService {
             message.setSubject("SkySync Weather Alert: " + city.toUpperCase());
 
             String emailText = String.format(
-                "Hello,\n\nYour SkySync weather alert has been triggered.\n" +
-                "The current temperature in %s is %.1f°C, which is %s your threshold of %.1f°C.\n\n" +
-                "Stay prepared.\n— SkySync Weather",
+                "Hello,\n\nYour SkySync weather alert has been triggered.\n\n" +
+                "City       : %s\n" +
+                "Current    : %.1f°C\n" +
+                "Condition  : Temperature is %s %.1f°C\n\n" +
+                "Stay prepared.\n\nSkySync Weather Engine",
                 city.toUpperCase(), currentTemp, condition.toLowerCase(), targetTemp
             );
 
             message.setText(emailText);
             Transport.send(message);
         } catch (Exception e) {
-            System.err.println("Email send failed: " + e.getMessage());
+            System.err.println("Email dispatch failed: " + e.getMessage());
         }
     }
 
     public void deleteSpecificAlert(String email, String city) {
         String cleanEmail = email.trim().toLowerCase();
         String cleanCity = city.trim().toLowerCase();
-
         List<AlertEntity> activeAlerts = alertRepository.findAll();
         for (AlertEntity alert : activeAlerts) {
             if (alert.getEmail().equalsIgnoreCase(cleanEmail) && alert.getCity().equalsIgnoreCase(cleanCity)) {

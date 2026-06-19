@@ -1,74 +1,64 @@
 import React from 'react'
 
-const WeatherCard = ({ weather, isCelsius, isMetersPerSecond }) => {
+const WeatherCard = ({ weather, isCelsius = true, isMetersPerSecond = true }) => {
   if (!weather) return null
 
-  const displayTemp = (celsiusValue) => {
-    if (isCelsius) return `${Math.round(celsiusValue)}°C`
-    const fahrenheit = (celsiusValue * 9) / 5 + 32
-    return `${Math.round(fahrenheit)}°F`
+  const displayTemp = (c) => {
+    if (isCelsius) return `${Math.round(c)}°C`
+    return `${Math.round((c * 9) / 5 + 32)}°F`
   }
 
-  const displayWind = (mpsValue) => {
-    if (isMetersPerSecond) return `${mpsValue.toFixed(1)} m/s`
-    const kph = mpsValue * 3.6
-    return `${kph.toFixed(1)} km/h`
+  const displayWind = (mps) => {
+    if (isMetersPerSecond) return `${mps.toFixed(1)} m/s`
+    return `${(mps * 3.6).toFixed(1)} km/h`
   }
 
-  const getAqiLabel = (aqiValue) => {
-    switch (aqiValue) {
-      case 1: return "Excellent (Level 1)"
-      case 2: return "Fair (Level 2)"
-      case 3: return "Moderate (Level 3)"
-      case 4: return "Poor (Level 4)"
-      case 5: return "Hazardous (Level 5)"
-      default: return "Unknown"
-    }
+  const aqiLabel = (v) => {
+    const map = { 1: 'Good', 2: 'Fair', 3: 'Moderate', 4: 'Poor', 5: 'Hazardous' }
+    return map[v] || 'N/A'
   }
+
+  const aqiColor = (v) => v >= 4 ? 'var(--danger)' : v === 3 ? '#b7791f' : 'var(--success)'
 
   return (
-    <div className="weather-card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-        <h2 className="weather-city" style={{ margin: 0 }}>{weather.city}</h2>
-        <span style={{
-          background: 'rgba(255,193,7,0.25)',
-          color: '#ffc107',
-          padding: '4px 12px',
-          borderRadius: '20px',
-          fontSize: '12px',
-          fontWeight: '600',
-          border: '1px solid rgba(255,193,7,0.4)'
-        }}>
-          🔌 Source: {weather.apiSource || "Unknown API Engine"}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
+        <div>
+          <div className="weather-city-name" style={{ textTransform: 'capitalize' }}>{weather.city}</div>
+          <div className="weather-description">{weather.description}</div>
+        </div>
+        <span className="source-badge">
+          {weather.apiSource || 'Unknown Source'}
         </span>
       </div>
-      <p className="weather-desc">✨ {weather.description}</p>
-      
-      <div className="temp-container">
-        <span className="main-temp">{displayTemp(weather.temparature)}</span>
-        <span className="feels-temp">Feels like {displayTemp(weather.feelsLike)}</span>
+
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '14px' }}>
+        <span className="temp-display">{displayTemp(weather.temparature)}</span>
+        <span className="feels-like-label" style={{ paddingBottom: '10px' }}>
+          Feels like {displayTemp(weather.feelsLike)}
+        </span>
       </div>
 
-      <hr className="metrics-divider" />
+      <hr className="divider" style={{ margin: '4px 0' }} />
 
-      <div className="metrics-grid" style={{ flexWrap: 'wrap', gap: '20px' }}>
-        <div className="metric-item">
-          <span className="metric-label">💧 Humidity</span>
-          <span className="metric-value">{weather.humidity}%</span>
+      <div className="metric-grid">
+        <div className="metric-tile">
+          <span className="metric-tile-label">Humidity</span>
+          <span className="metric-tile-value">{weather.humidity}%</span>
         </div>
-        <div className="metric-item">
-          <span className="metric-label">💨 Wind Speed</span>
-          <span className="metric-value">{displayWind(weather.windSpeed)}</span>
+        <div className="metric-tile">
+          <span className="metric-tile-label">Wind Speed</span>
+          <span className="metric-tile-value">{displayWind(weather.windSpeed)}</span>
         </div>
-        <div className="metric-item">
-          <span className="metric-label">🍃 Air Quality (AQI)</span>
-          <span className="metric-value" style={{ fontSize: '15px', color: weather.aqi > 3 ? '#ff6b6b' : '#ffc107' }}>
-            {getAqiLabel(weather.aqi)}
+        <div className="metric-tile">
+          <span className="metric-tile-label">Air Quality</span>
+          <span className="metric-tile-value" style={{ color: aqiColor(weather.aqi), fontSize: '17px' }}>
+            {aqiLabel(weather.aqi)} (AQI {weather.aqi})
           </span>
         </div>
-        <div className="metric-item">
-          <span className="metric-label">🌧️ Precipitation</span>
-          <span className="metric-value">{weather.precipitation.toFixed(2)} mm</span>
+        <div className="metric-tile">
+          <span className="metric-tile-label">Precipitation</span>
+          <span className="metric-tile-value">{weather.precipitation.toFixed(2)} mm</span>
         </div>
       </div>
     </div>

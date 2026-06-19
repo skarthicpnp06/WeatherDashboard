@@ -4,7 +4,7 @@ import WeatherCard from '../Components/WeatherCard.jsx'
 import Loader from '../Components/Loader.jsx'
 import Errormessage from '../Components/Errormessage.jsx'
 
-const Compare = () => {
+const Compare = ({ isCelsius, isMetersPerSecond }) => {
   const [city1, setCity1] = useState('')
   const [city2, setCity2] = useState('')
   const [data1, setData1] = useState(null)
@@ -15,45 +15,36 @@ const Compare = () => {
   const handleCompare = async (e) => {
     e.preventDefault()
     if (!city1.trim() || !city2.trim()) return
-
     setLoading(true)
     setError(null)
     try {
-      const res1 = await getWeatherData(city1)
-      const res2 = await getWeatherData(city2)
+      const [res1, res2] = await Promise.all([getWeatherData(city1), getWeatherData(city2)])
       setData1(res1)
       setData2(res2)
     } catch (err) {
-      setError("Could not complete city metrics side-by-side verification: " + err.message)
+      setError("Could not fetch comparison data: " + err.message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="container">
-      <div className="glass-panel">
-        <h2 style={{ color: '#2c3e50', textAlign: 'center', margin: '0 0 25px 0', fontSize: '26px' }}>Side-by-Side City Comparison</h2>
-        
-        <form onSubmit={handleCompare} style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '10px' }}>
-          <input 
-            type="text" 
-            value={city1} 
-            onChange={(e) => setCity1(e.target.value)} 
-            placeholder="First City..." 
-            className="input-control"
-            style={{ maxWidth: '250px' }}
-          />
-          <input 
-            type="text" 
-            value={city2} 
-            onChange={(e) => setCity2(e.target.value)} 
-            placeholder="Second City..." 
-            className="input-control"
-            style={{ maxWidth: '250px' }}
-          />
-          <button type="submit" className="btn-primary">
-            Compare Metrics
+    <div className="page-wrapper">
+      <div className="card">
+        <h2 className="page-title">City Comparison</h2>
+        <p className="page-subtitle">Compare live weather metrics between two cities side by side.</p>
+
+        <form onSubmit={handleCompare} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div style={{ flex: 1, minWidth: '180px' }}>
+            <label className="form-label">First City</label>
+            <input type="text" value={city1} onChange={(e) => setCity1(e.target.value)} placeholder="e.g. Mumbai" className="input-control" />
+          </div>
+          <div style={{ flex: 1, minWidth: '180px' }}>
+            <label className="form-label">Second City</label>
+            <input type="text" value={city2} onChange={(e) => setCity2(e.target.value)} placeholder="e.g. Delhi" className="input-control" />
+          </div>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            Compare
           </button>
         </form>
 
@@ -61,12 +52,12 @@ const Compare = () => {
         {error && <Errormessage message={error} />}
 
         {!loading && !error && (data1 || data2) && (
-          <div className="compare-layout">
-            <div className="compare-col">
-              {data1 && <WeatherCard weather={data1} />}
+          <div className="compare-grid">
+            <div className="card-sm">
+              {data1 && <WeatherCard weather={data1} isCelsius={isCelsius} isMetersPerSecond={isMetersPerSecond} />}
             </div>
-            <div className="compare-col">
-              {data2 && <WeatherCard weather={data2} />}
+            <div className="card-sm">
+              {data2 && <WeatherCard weather={data2} isCelsius={isCelsius} isMetersPerSecond={isMetersPerSecond} />}
             </div>
           </div>
         )}

@@ -39,7 +39,9 @@ public class WeatherEntity {
 
     public WeatherEntity() {}
 
-    public WeatherEntity(Long id, String city, double temparature, double feelsLike, int humidity, double windSpeed, String description, String forecastDate, String apiSource, int aqi, double precipitation) {
+    public WeatherEntity(Long id, String city, double temparature, double feelsLike, int humidity,
+                         double windSpeed, String description, String forecastDate,
+                         String apiSource, int aqi, double precipitation) {
         this.id = id;
         this.city = city != null ? city.trim().toLowerCase() : null;
         this.temparature = temparature;
@@ -53,7 +55,8 @@ public class WeatherEntity {
         this.precipitation = precipitation;
     }
 
-    public WeatherEntity(String city, double temparature, String description, int humidity, double windSpeed, String apiSource) {
+    public WeatherEntity(String city, double temparature, String description,
+                         int humidity, double windSpeed, String apiSource) {
         this.city = city != null ? city.trim().toLowerCase() : null;
         this.temparature = temparature;
         this.feelsLike = temparature;

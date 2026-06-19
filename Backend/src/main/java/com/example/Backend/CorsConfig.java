@@ -10,7 +10,11 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("https://weather-dashboard-987s.vercel.app")
+                .allowedOrigins(
+                    "https://weather-dashboard-987s.vercel.app",
+                    "https://weather-dashboard-987s-qv9vi0d75-karthic-s-projects.vercel.app",
+                    "https://weather-dashboard-987s-git-main-karthic-s-projects.vercel.app"
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("Access-Control-Allow-Origin")

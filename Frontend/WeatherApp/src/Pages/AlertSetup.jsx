@@ -11,65 +11,53 @@ const AlertSetup = () => {
 
   const [disableEmail, setDisableEmail] = useState('')
   const [disableCity, setDisableCity] = useState('')
-  const [disableStatus, setDisableStatus] = useState('')
+  const [disableStatus, setDisableStatus] = useState({ type: '', msg: '' })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!email || !city || !targetTemp) {
-      setStatus({ type: 'error', msg: 'Please fill out all alert registration fields.' })
+      setStatus({ type: 'error', msg: 'All fields are required.' })
       return
     }
-
     setLoading(true)
     setStatus({ type: '', msg: '' })
-
-    const payload = {
-      email: email.trim(),
-      city: city.trim(),
-      targetTemp: parseFloat(targetTemp),
-      triggerCondition: condition
-    }
-
     try {
-      await registerWeatherAlert(payload)
-      setStatus({ type: 'success', msg: `Success! Alerts armed for ${city.toUpperCase()} when temp goes ${condition.toLowerCase()} ${targetTemp}°C.` })
+      await registerWeatherAlert({ email: email.trim(), city: city.trim(), targetTemp: parseFloat(targetTemp), triggerCondition: condition })
+      setStatus({ type: 'success', msg: `Alert activated for ${city.toUpperCase()} — triggers when temp goes ${condition.toLowerCase()} ${targetTemp}°C.` })
       setEmail('')
       setCity('')
       setTargetTemp('')
     } catch (err) {
-      setStatus({ type: 'error', msg: 'Failed to configure alert configuration profile. Check backend connection.' })
+      setStatus({ type: 'error', msg: 'Failed to register alert. Check backend connection.' })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleDisableAlert = async (e) => {
+  const handleDisable = async (e) => {
     e.preventDefault()
     if (!disableEmail || !disableCity) {
-      setDisableStatus('⚠️ Please enter both your registered email and target city.')
+      setDisableStatus({ type: 'error', msg: 'Both email and city are required.' })
       return
     }
-
     try {
-      setDisableStatus('Processing removal requests...')
+      setDisableStatus({ type: '', msg: 'Processing...' })
       await disableWeatherAlert(disableEmail, disableCity)
-      setDisableStatus(`✨ Success! Alert monitoring removed for ${disableCity.toUpperCase()} assigned to ${disableEmail}.`)
+      setDisableStatus({ type: 'success', msg: `Alert removed for ${disableCity.toUpperCase()} assigned to ${disableEmail}.` })
       setDisableEmail('')
       setDisableCity('')
     } catch (err) {
-      setDisableStatus('❌ Failed to disable alert. Confirm email/city parameters match database records.')
+      setDisableStatus({ type: 'error', msg: 'Failed to disable alert. Verify email and city match your registered profile.' })
     }
   }
 
   return (
-    <div style={{ maxWidth: '550px', margin: '40px auto' }}>
-      <div className="glass-panel">
-        <h2 style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '26px' }}>Configure Weather Alerts</h2>
-        <p style={{ textAlign: 'center', fontSize: '14px', color: '#7f8c8d', marginBottom: '30px' }}>
-          Receive automated email dispatches when conditions break past your preferred metrics.
-        </p>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div className="page-wrapper" style={{ maxWidth: '580px' }}>
+      <div className="card">
+        <h2 className="page-title">Weather Alerts</h2>
+        <p className="page-subtitle">Receive automated email notifications when temperature conditions are met.</p>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="form-group">
             <label className="form-label">Email Address</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="yourname@gmail.com" className="input-control" />
@@ -80,66 +68,52 @@ const AlertSetup = () => {
             <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Coimbatore" className="input-control" />
           </div>
 
-          <div style={{ display: 'flex', gap: '15px' }}>
-            <div className="form-group" style={{ flex: '1' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div className="form-group">
               <label className="form-label">Condition</label>
               <select value={condition} onChange={(e) => setCondition(e.target.value)} className="input-control">
                 <option value="ABOVE">Goes ABOVE</option>
                 <option value="BELOW">Drops BELOW</option>
               </select>
             </div>
-            <div className="form-group" style={{ flex: '1' }}>
-              <label className="form-label">Threshold Target (°C)</label>
+            <div className="form-group">
+              <label className="form-label">Threshold (°C)</label>
               <input type="number" value={targetTemp} onChange={(e) => setTargetTemp(e.target.value)} placeholder="e.g. 32" className="input-control" />
             </div>
           </div>
 
-          <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: '10px' }}>
-            {loading ? 'Processing Dispatch Setup...' : 'Activate Alarm Trigger'}
+          <button type="submit" disabled={loading} className="btn btn-primary" style={{ marginTop: '4px' }}>
+            {loading ? 'Activating...' : 'Activate Alert'}
           </button>
         </form>
 
         {status.msg && (
-          <div className={`alert-status ${status.type === 'success' ? 'alert-success' : 'alert-danger'}`}>
+          <div className={`alert-banner ${status.type === 'success' ? 'alert-success' : 'alert-error'}`}>
             {status.msg}
           </div>
         )}
 
-        <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '40px 0 30px 0' }} />
+        <hr className="divider" />
 
-        <h3 style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '20px', color: '#e74c3c' }}>🛑 Disable Active Alerts</h3>
-        <p style={{ textAlign: 'center', fontSize: '13px', color: '#7f8c8d', marginBottom: '20px' }}>
-          Stop receiving background notifications for a specific profile setup instantly.
+        <h3 style={{ fontSize: '17px', fontWeight: '700', color: 'var(--danger)', marginBottom: '6px' }}>
+          Disable Alert
+        </h3>
+        <p className="page-subtitle" style={{ marginBottom: '16px' }}>
+          Stop notifications for a specific registered profile.
         </p>
 
-        <form onSubmit={handleDisableAlert} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <div className="form-group">
-            <input 
-              type="email" 
-              value={disableEmail} 
-              onChange={(e) => setDisableEmail(e.target.value)} 
-              placeholder="Enter registered email address..." 
-              className="input-control" 
-            />
-          </div>
-          <div className="form-group">
-            <input 
-              type="text" 
-              value={disableCity} 
-              onChange={(e) => setDisableCity(e.target.value)} 
-              placeholder="Enter assigned city name..." 
-              className="input-control" 
-            />
-          </div>
-          <button type="submit" className="btn-primary" style={{ background: '#e74c3c' }}>
-            Turn Off Alert Track
+        <form onSubmit={handleDisable} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <input type="email" value={disableEmail} onChange={(e) => setDisableEmail(e.target.value)} placeholder="Registered email address" className="input-control" />
+          <input type="text" value={disableCity} onChange={(e) => setDisableCity(e.target.value)} placeholder="Registered city name" className="input-control" />
+          <button type="submit" className="btn btn-danger">
+            Disable Alert
           </button>
         </form>
 
-        {disableStatus && (
-          <p style={{ marginTop: '15px', padding: '10px', background: 'rgba(231,76,60,0.1)', borderRadius: '6px', fontSize: '13px', textAlign: 'center', fontWeight: '500' }}>
-            {disableStatus}
-          </p>
+        {disableStatus.msg && (
+          <div className={`alert-banner ${disableStatus.type === 'success' ? 'alert-success' : 'alert-error'}`}>
+            {disableStatus.msg}
+          </div>
         )}
       </div>
     </div>

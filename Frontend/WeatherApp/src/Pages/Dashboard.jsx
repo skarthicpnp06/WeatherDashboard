@@ -12,60 +12,52 @@ const Dashboard = ({ setCurrentCity, isCelsius, isMetersPerSecond, defaultCity }
 
   useEffect(() => {
     if (defaultCity && !weather && !loading) {
-      const loadInitialCity = async () => {
-        setLoading(true)
-        try {
-          const data = await getWeatherData(defaultCity)
-          setWeather(data)
-          setCurrentCity(defaultCity)
-        } catch (err) {
-          console.error("Startup default query error: ", err)
-        } finally {
-          setLoading(false)
-        }
-      }
-      loadInitialCity()
+      fetchCity(defaultCity)
     }
   }, [defaultCity])
+
+  const fetchCity = async (city) => {
+    setLoading(true)
+    setError(null)
+    setWeather(null)
+    try {
+      const data = await getWeatherData(city)
+      if (data && data.city) {
+        setWeather(data)
+        setCurrentCity(city.trim())
+      } else {
+        throw new Error("Invalid response from weather service.")
+      }
+    } catch (err) {
+      setError(err.message || "Unable to fetch weather data.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleSearch = async (e) => {
     e.preventDefault()
     if (!inputCity.trim()) return
-    
-    setLoading(true)
-    setError(null)
-    setWeather(null) 
-    
-    try {
-      const data = await getWeatherData(inputCity)
-      if (data && data.city) {
-        setWeather(data)
-        setCurrentCity(inputCity.trim())
-      } else {
-        throw new Error("The backend returned an unparsable weather data schema.")
-      }
-    } catch (err) {
-      console.error("Dashboard Resolution Fault: ", err)
-      setError(err.message || "Failed to finalize sync sequence across atmospheric endpoints.")
-      setWeather(null)
-    } finally {
-      setLoading(false) 
-    }
+    fetchCity(inputCity)
   }
 
   return (
-    <div style={{ maxWidth: '600px', margin: '40px auto 0 auto' }}>
-      <div className="glass-panel" style={{ textAlign: 'center' }}>
-        <h1 style={{ color: '#2c3e50', margin: '0 0 25px 0', fontSize: '32px', fontWeight: '700' }}>SkySync Weather</h1>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px', marginBottom: '10px' }}>
-          <input 
-            type="text" 
+    <div className="page-wrapper" style={{ maxWidth: '620px' }}>
+      <div className="card">
+        <h1 style={{ fontSize: '26px', fontWeight: '800', letterSpacing: '-0.03em', marginBottom: '4px' }}>
+          Current Weather
+        </h1>
+        <p className="page-subtitle">Enter a city name to retrieve live conditions.</p>
+
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px', marginBottom: '6px' }}>
+          <input
+            type="text"
             value={inputCity}
             onChange={(e) => setInputCity(e.target.value)}
-            placeholder="Enter City Name (e.g. Coimbatore)..."
+            placeholder="City name, e.g. Coimbatore"
             className="input-control"
           />
-          <button type="submit" className="btn-primary">
+          <button type="submit" className="btn btn-primary" disabled={loading}>
             Search
           </button>
         </form>
@@ -73,7 +65,7 @@ const Dashboard = ({ setCurrentCity, isCelsius, isMetersPerSecond, defaultCity }
         {loading && <Loader />}
         {error && !loading && <Errormessage message={error} />}
         {weather && !loading && !error && (
-          <div style={{ marginTop: '25px' }}>
+          <div style={{ marginTop: '24px' }}>
             <WeatherCard weather={weather} isCelsius={isCelsius} isMetersPerSecond={isMetersPerSecond} />
           </div>
         )}

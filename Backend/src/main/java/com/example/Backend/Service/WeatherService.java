@@ -19,6 +19,7 @@ public class WeatherService {
 
     @Autowired
     private WeatherRepository weatherRepository;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${openweathermap.api.key}")
@@ -37,7 +38,7 @@ public class WeatherService {
             weatherRepository.save(weather);
             return weather;
         } catch (Exception e) {
-            System.out.println("OpenWeather failed, trying secondary: " + e.getMessage());
+            System.out.println("OpenWeather failed: " + e.getMessage());
         }
 
         try {
@@ -46,7 +47,7 @@ public class WeatherService {
             weatherRepository.save(weather);
             return weather;
         } catch (Exception e) {
-            System.out.println("Secondary API failed, falling back to database: " + e.getMessage());
+            System.out.println("WeatherAPI failed: " + e.getMessage());
         }
 
         try {
@@ -56,7 +57,7 @@ public class WeatherService {
                 return cachedData;
             }
         } catch (Exception e) {
-            System.out.println("Database fallback failed.");
+            System.out.println("Cache fallback failed.");
         }
 
         WeatherEntity fallback = new WeatherEntity(city, 30.0, "Fallback Data", 70, 10.0, "Static Fallback");
@@ -65,7 +66,8 @@ public class WeatherService {
     }
 
     private WeatherEntity getFromOpenWeather(String city) {
-        String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + openWeatherApiKey + "&units=metric";
+        String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city
+                + "&appid=" + openWeatherApiKey + "&units=metric";
         Map response = restTemplate.getForObject(url, Map.class);
 
         Map main = (Map) response.get("main");
@@ -75,11 +77,13 @@ public class WeatherService {
         String cityName = (String) response.get("name");
 
         double temp = ((Number) main.get("temp")).doubleValue();
+        double feelsLike = ((Number) main.get("feels_like")).doubleValue();
         int humidity = ((Number) main.get("humidity")).intValue();
         double windSpeed = ((Number) wind.get("speed")).doubleValue();
         String condition = (String) weatherData.get("main");
 
         WeatherEntity entity = new WeatherEntity(cityName, temp, condition, humidity, windSpeed, "OpenWeather API");
+        entity.setFeelsLike(feelsLike);
 
         double precipitationValue = 0.0;
         String lowerDesc = condition.toLowerCase();
@@ -90,17 +94,16 @@ public class WeatherService {
         }
         entity.setPrecipitation(precipitationValue);
 
-        int calculatedAqi = 1 + (int)(Math.random() * 2);
-        if (temp > 34 || humidity > 85) {
-            calculatedAqi = 3;
-        }
+        int calculatedAqi = 1 + (int) (Math.random() * 2);
+        if (temp > 34 || humidity > 85) calculatedAqi = 3;
         entity.setAqi(calculatedAqi);
 
         return entity;
     }
 
     private WeatherEntity getFromWeatherAPI(String city) {
-        String url = "https://api.weatherapi.com/v1/current.json?key=" + secondaryWeatherApiKey + "&q=" + city + "&aqi=yes";
+        String url = "https://api.weatherapi.com/v1/current.json?key=" + secondaryWeatherApiKey
+                + "&q=" + city + "&aqi=yes";
         Map response = restTemplate.getForObject(url, Map.class);
 
         Map location = (Map) response.get("location");
@@ -109,17 +112,18 @@ public class WeatherService {
 
         String cityName = (String) location.get("name");
         double temp = ((Number) current.get("temp_c")).doubleValue();
+        double feelsLike = ((Number) current.get("feelslike_c")).doubleValue();
         int humidity = ((Number) current.get("humidity")).intValue();
         double windSpeed = ((Number) current.get("wind_kph")).doubleValue() * 0.277778;
         String condition = (String) conditionMap.get("text");
 
         WeatherEntity entity = new WeatherEntity(cityName, temp, condition, humidity, windSpeed, "WeatherAPI (Secondary)");
+        entity.setFeelsLike(feelsLike);
 
         double precipitationValue = 0.0;
         if (current.containsKey("precip_mm")) {
             precipitationValue = ((Number) current.get("precip_mm")).doubleValue();
         }
-
         if (precipitationValue == 0.0) {
             String lowerDesc = condition.toLowerCase();
             if (lowerDesc.contains("rain") || lowerDesc.contains("drizzle") || lowerDesc.contains("heavy") || lowerDesc.contains("showers")) {
@@ -146,7 +150,8 @@ public class WeatherService {
     }
 
     public Map<String, Object> getForecastData(String city) {
-        String url = "https://api.openweathermap.org/data/2.5/forecast?q=" + city.trim() + "&appid=" + openWeatherApiKey + "&units=metric";
+        String url = "https://api.openweathermap.org/data/2.5/forecast?q=" + city.trim()
+                + "&appid=" + openWeatherApiKey + "&units=metric";
         try {
             return restTemplate.getForObject(url, Map.class);
         } catch (Exception e) {

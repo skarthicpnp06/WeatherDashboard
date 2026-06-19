@@ -1,35 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import { clearDatabaseCacheHistory } from '../Services/weatherservice'
 
-const Settings = ({ 
-  isDarkMode, 
-  setIsDarkMode, 
-  isCelsius, 
-  setIsCelsius, 
-  isMetersPerSecond, 
-  setIsMetersPerSecond,
-  defaultCity,
-  setDefaultCity 
+const Settings = ({
+  isDarkMode, setIsDarkMode,
+  isCelsius, setIsCelsius,
+  isMetersPerSecond, setIsMetersPerSecond,
+  defaultCity, setDefaultCity
 }) => {
   const [cacheStatus, setCacheStatus] = useState('')
-  const [backendAlive, setBackendAlive] = useState('Checking connectivity...')
+  const [backendAlive, setBackendAlive] = useState('Checking...')
   const [inputCity, setInputCity] = useState(defaultCity)
 
   useEffect(() => {
-    const checkServer = async () => {
-      const BASE_URL = "https://weatherdashboard-1-5tai.onrender.com/weather";
+    const check = async () => {
       try {
-        const res = await fetch(`${BASE_URL}?city=coimbatore`)
-        if (res.ok) {
-          setBackendAlive('🟢 Cloud Instance Core Active')
-        } else {
-          setBackendAlive('🔴 Core System Return Flag Misalignment')
-        }
-      } catch (err) {
-        setBackendAlive('🔴 Target Stream Disconnected')
+        const res = await fetch('https://weatherdashboard-1-5tai.onrender.com/weather?city=london')
+        setBackendAlive(res.ok ? 'Connected' : 'Unreachable')
+      } catch {
+        setBackendAlive('Unreachable')
       }
     }
-    checkServer()
+    check()
   }, [])
 
   const toggleTheme = () => {
@@ -43,117 +34,106 @@ const Settings = ({
   }
 
   const saveDefaultCity = () => {
-    const cleanCity = inputCity.trim().toLowerCase()
-    localStorage.setItem('skysync_default_city', cleanCity)
-    setDefaultCity(cleanCity)
-    setCacheStatus(`Favorite station established: "${cleanCity.toUpperCase()}"`)
+    const clean = inputCity.trim().toLowerCase()
+    localStorage.setItem('skysync_default_city', clean)
+    setDefaultCity(clean)
+    setCacheStatus(`Default city set to "${clean.toUpperCase()}"`)
     setTimeout(() => setCacheStatus(''), 4000)
   }
 
   const handleCacheClear = async () => {
-    if (!window.confirm("Purge cached application history rows? This structural manipulation completely maps down database logs.")) return
-
+    if (!window.confirm('This will permanently delete all cached weather history from the database. Continue?')) return
     try {
-      setCacheStatus('Evicting historical records...')
+      setCacheStatus('Clearing history...')
       await clearDatabaseCacheHistory()
-      setCacheStatus('Cache data entities dropped cleanly.')
-      setTimeout(() => setCacheStatus(''), 4000)
-    } catch (err) {
-      setCacheStatus('Maintenance pipeline tracking fault encountered.')
+      setCacheStatus('History cleared successfully.')
+    } catch {
+      setCacheStatus('Failed to clear history.')
     }
+    setTimeout(() => setCacheStatus(''), 4000)
   }
 
+  const backendColor = backendAlive === 'Connected' ? 'var(--success)' : backendAlive === 'Checking...' ? 'var(--text-muted)' : 'var(--danger)'
+
   return (
-    <div className="container" style={{ maxWidth: '650px' }}>
-      <div className="glass-panel">
-        <h2 style={{ margin: '0 0 8px 0', fontSize: '28px', letterSpacing: '-0.025em' }}>Application Settings</h2>
-        <p style={{ fontSize: '14px', color: 'var(--nav-text)', marginBottom: '32px' }}>
-          Personalize system configurations and interface styling modules.
-        </p>
+    <div className="page-wrapper" style={{ maxWidth: '680px' }}>
+      <div className="card">
+        <h2 className="page-title">Settings</h2>
+        <p className="page-subtitle">Configure display preferences and system options.</p>
 
-        <div className="theme-toggle-row">
+        <div className="settings-row">
           <div>
-            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Interface Theme Mode</h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--nav-text)' }}>
-              Switch workspace backgrounds across dark and light palettes.
-            </p>
+            <div className="settings-row-label">Theme</div>
+            <div className="settings-row-desc">Switch between light and dark interface modes.</div>
           </div>
-          <button onClick={toggleTheme} className="btn-primary" style={{ background: isDarkMode ? '#dc2626' : '#1e293b', width: '160px' }}>
-            {isDarkMode ? '☀️ Light Palette' : '🌙 Dark Slate'}
+          <button onClick={toggleTheme} className="btn btn-ghost" style={{ minWidth: '130px' }}>
+            {isDarkMode ? 'Light Mode' : 'Dark Mode'}
           </button>
         </div>
 
-        <div className="theme-toggle-row" style={{ marginTop: '15px' }}>
+        <div className="settings-row">
           <div>
-            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Temperature Metric</h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--nav-text)' }}>
-              Convert displayed global temperature metrics instantly.
-            </p>
+            <div className="settings-row-label">Temperature Unit</div>
+            <div className="settings-row-desc">Toggle between Celsius and Fahrenheit.</div>
           </div>
-          <button onClick={() => setIsCelsius(!isCelsius)} className="btn-primary" style={{ background: '#2563eb', width: '160px' }}>
-            {isCelsius ? 'Fahrenheit (°F)' : 'Celsius (°C)'}
+          <button onClick={() => setIsCelsius(!isCelsius)} className="btn btn-ghost" style={{ minWidth: '130px' }}>
+            {isCelsius ? 'Switch to °F' : 'Switch to °C'}
           </button>
         </div>
 
-        <div className="theme-toggle-row" style={{ marginTop: '15px' }}>
+        <div className="settings-row">
           <div>
-            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Wind Velocity Metrics</h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--nav-text)' }}>
-              Convert wind tracking outputs to preferred dimensional units.
-            </p>
+            <div className="settings-row-label">Wind Speed Unit</div>
+            <div className="settings-row-desc">Toggle between m/s and km/h.</div>
           </div>
-          <button onClick={() => setIsMetersPerSecond(!isMetersPerSecond)} className="btn-primary" style={{ background: '#16a34a', width: '160px' }}>
-            {isMetersPerSecond ? 'Use km/h' : 'Use m/s'}
+          <button onClick={() => setIsMetersPerSecond(!isMetersPerSecond)} className="btn btn-ghost" style={{ minWidth: '130px' }}>
+            {isMetersPerSecond ? 'Switch to km/h' : 'Switch to m/s'}
           </button>
         </div>
 
-        <div className="theme-toggle-row" style={{ marginTop: '15px', flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
+        <div className="settings-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
           <div>
-            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Default Home City</h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--nav-text)' }}>
-              Set a primary fallback station to fetch right when the dashboard opens.
-            </p>
+            <div className="settings-row-label">Default City</div>
+            <div className="settings-row-desc">Automatically loaded when the dashboard opens.</div>
           </div>
-          <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
-            <input 
-              type="text" 
-              value={inputCity} 
-              onChange={(e) => setInputCity(e.target.value)} 
-              placeholder="e.g. Coimbatore" 
+          <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+            <input
+              type="text"
+              value={inputCity}
+              onChange={(e) => setInputCity(e.target.value)}
+              placeholder="e.g. Coimbatore"
               className="input-control"
             />
-            <button onClick={saveDefaultCity} className="btn-primary" style={{ background: '#7c3aed' }}>
+            <button onClick={saveDefaultCity} className="btn btn-primary">
               Save
             </button>
           </div>
         </div>
 
-        <div className="theme-toggle-row" style={{ marginTop: '15px' }}>
+        <div className="settings-row">
           <div>
-            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>System Core Health</h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--nav-text)' }}>
-              Live connection verification with active microservice architecture backend.
-            </p>
+            <div className="settings-row-label">Backend Status</div>
+            <div className="settings-row-desc">Live connection check with the Render deployment.</div>
           </div>
-          <span style={{ fontSize: '14px', fontWeight: '600' }}>{backendAlive}</span>
+          <span style={{ fontWeight: '700', fontSize: '14px', color: backendColor }}>
+            {backendAlive}
+          </span>
         </div>
 
-        <div className="theme-toggle-row" style={{ marginTop: '15px', borderBottom: 'none' }}>
+        <div className="settings-row" style={{ borderBottom: 'none' }}>
           <div>
-            <h4 style={{ margin: 0, fontSize: '16px', color: '#dc2626', fontWeight: '600' }}>System Storage Optimization</h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--nav-text)' }}>
-              Evict cached database query rows to clear performance trends.
-            </p>
+            <div className="settings-row-label" style={{ color: 'var(--danger)' }}>Clear History</div>
+            <div className="settings-row-desc">Permanently delete all cached search records from the database.</div>
           </div>
-          <button onClick={handleCacheClear} className="btn-primary" style={{ background: '#dc2626', width: '160px' }}>
-            Purge Logs
+          <button onClick={handleCacheClear} className="btn btn-danger" style={{ minWidth: '130px' }}>
+            Clear Cache
           </button>
         </div>
 
         {cacheStatus && (
-          <p style={{ marginTop: '20px', padding: '12px', background: 'rgba(37,99,235,0.08)', color: '#2563eb', borderRadius: '8px', fontSize: '14px', textAlign: 'center', fontWeight: '600' }}>
+          <div style={{ marginTop: '16px', padding: '12px 16px', background: 'var(--accent-soft)', color: 'var(--accent)', borderRadius: 'var(--radius-sm)', fontSize: '13.5px', fontWeight: '600' }}>
             {cacheStatus}
-          </p>
+          </div>
         )}
       </div>
     </div>
