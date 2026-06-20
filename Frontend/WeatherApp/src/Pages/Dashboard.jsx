@@ -3,7 +3,7 @@ import { getWeatherData, getCitySuggestions } from '../Services/weatherservice.j
 import WeatherCard from '../Components/WeatherCard.jsx'
 import Loader from '../Components/Loader.jsx'
 import Errormessage from '../Components/Errormessage.jsx'
-import { useDebounce } from '../Hooks/useDebounce.js'
+import { useDebounce } from '../Hooks/usedebounce.js'
 
 const Dashboard = ({ setCurrentCity, isCelsius, isMetersPerSecond, defaultCity }) => {
   const [inputCity, setInputCity] = useState('')
