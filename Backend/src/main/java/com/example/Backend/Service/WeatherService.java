@@ -3,11 +3,14 @@ package com.example.Backend.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,6 +22,9 @@ public class WeatherService {
 
     @Autowired
     private WeatherRepository weatherRepository;
+
+    @Autowired
+    private com.example.Backend.Repository.AlertRepository alertRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -145,8 +151,17 @@ public class WeatherService {
         return entity;
     }
 
+    @Cacheable(value = "historyCache", key = "#city.trim().toLowerCase()")
     public List<WeatherEntity> getHistory(String city) {
         return weatherRepository.findByCityOrderByIdDesc(city.trim().toLowerCase());
+    }
+
+    @Cacheable(value = "suggestionCache", key = "#prefix.trim().toLowerCase()")
+    public List<String> getCitySuggestions(String prefix) {
+        if (prefix == null || prefix.trim().length() < 1) {
+            return new ArrayList<>();
+        }
+        return weatherRepository.findDistinctCitiesByPrefix(prefix.trim().toLowerCase());
     }
 
     public Map<String, Object> getForecastData(String city) {
@@ -159,6 +174,32 @@ public class WeatherService {
         }
     }
 
+    public Map<String, Object> getAnalyticsSummary() {
+        long totalSearches = weatherRepository.countAllSearches();
+        long distinctCities = weatherRepository.countDistinctCities();
+        List<Object[]> topCitiesRaw = weatherRepository.findTopSearchedCities();
+
+        List<Map<String, Object>> topCities = new ArrayList<>();
+        int limit = Math.min(5, topCitiesRaw.size());
+        for (int i = 0; i < limit; i++) {
+            Object[] row = topCitiesRaw.get(i);
+            Map<String, Object> entry = new LinkedHashMap<>();
+            entry.put("city", row[0]);
+            entry.put("count", row[1]);
+            topCities.add(entry);
+        }
+
+        long activeAlerts = alertRepository.count();
+
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("totalSearches", totalSearches);
+        summary.put("distinctCities", distinctCities);
+        summary.put("activeAlerts", activeAlerts);
+        summary.put("topCities", topCities);
+        return summary;
+    }
+
+    @CacheEvict(value = { "weatherCache", "historyCache", "suggestionCache" }, allEntries = true)
     public void clearAllHistoryCache() {
         weatherRepository.deleteAll();
     }

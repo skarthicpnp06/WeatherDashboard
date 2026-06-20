@@ -5,17 +5,26 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "alert_entity")
+@Table(
+    name = "alert_entity",
+    indexes = {
+        @Index(name = "idx_alert_email_city", columnList = "email, city")
+    }
+)
 public class AlertEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 150)
     private String email;
+
+    @Column(length = 100)
     private String city;
 
     @Column(name = "target_temp")

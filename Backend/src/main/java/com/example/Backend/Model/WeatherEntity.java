@@ -5,17 +5,27 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "weather_entity")
+@Table(
+    name = "weather_entity",
+    indexes = {
+        @Index(name = "idx_weather_city", columnList = "city"),
+        @Index(name = "idx_weather_city_id", columnList = "city, id"),
+        @Index(name = "idx_weather_forecast_date", columnList = "forecast_date")
+    }
+)
 public class WeatherEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 100)
     private String city;
+
     private double temparature;
 
     @Column(name = "feels_like")
@@ -28,7 +38,7 @@ public class WeatherEntity {
 
     private String description;
 
-    @Column(name = "forecast_date")
+    @Column(name = "forecast_date", length = 30)
     private String forecastDate;
 
     @Column(name = "api_source")

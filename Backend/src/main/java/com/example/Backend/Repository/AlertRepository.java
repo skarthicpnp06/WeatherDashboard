@@ -7,4 +7,5 @@ import com.example.Backend.Model.AlertEntity;
 
 @Repository
 public interface AlertRepository extends JpaRepository<AlertEntity, Long> {
+    long count();
 }

@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class AlertService {
     @Value("${spring.mail.port}")
     private String port;
 
+    @CacheEvict(value = "historyCache", allEntries = true)
     public AlertEntity saveAlert(AlertEntity alert) {
         String cleanCity = alert.getCity().trim().toLowerCase();
         String cleanEmail = alert.getEmail().trim().toLowerCase();
@@ -65,6 +67,10 @@ public class AlertService {
 
         evaluateAndTriggerSingleAlert(savedEntity);
         return savedEntity;
+    }
+
+    public long getActiveAlertCount() {
+        return alertRepository.count();
     }
 
     @Scheduled(fixedRate = 3600000)
@@ -136,6 +142,7 @@ public class AlertService {
         }
     }
 
+    @CacheEvict(value = "historyCache", allEntries = true)
     public void deleteSpecificAlert(String email, String city) {
         String cleanEmail = email.trim().toLowerCase();
         String cleanCity = city.trim().toLowerCase();

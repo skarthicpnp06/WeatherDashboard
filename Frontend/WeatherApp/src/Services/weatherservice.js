@@ -18,6 +18,18 @@ export async function getWeatherForecast(city) {
   return await response.json();
 }
 
+export async function getCitySuggestions(prefix) {
+  const response = await fetch(`${BASE_URL}/suggestions?prefix=${encodeURIComponent(prefix.trim())}`);
+  if (!response.ok) throw new Error("Failed to load suggestions.");
+  return await response.json();
+}
+
+export async function getAnalyticsSummary() {
+  const response = await fetch(`${BASE_URL}/analytics`);
+  if (!response.ok) throw new Error("Failed to load analytics summary.");
+  return await response.json();
+}
+
 export async function registerWeatherAlert(alertPayload) {
   const response = await fetch(`${BASE_URL}/alerts`, {
     method: "POST",
