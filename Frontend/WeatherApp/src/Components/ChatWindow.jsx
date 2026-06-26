@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import ChatMessage from './ChatMessage'
+import ChatMessage from '../Pages/ChatMessage'
 
 const TypingIndicator = () => (
   <div className="chat-message-row chat-row-ai">
