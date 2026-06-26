@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import { getDisasterAssessment, getDisasterHistory, getCityCoordinates } from '../Services/disasterService'
+import { getDisasterAssessment, getDisasterHistory, getCityCoordinates } from '../Services/DisasterService'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 const RISK_CONFIG = {

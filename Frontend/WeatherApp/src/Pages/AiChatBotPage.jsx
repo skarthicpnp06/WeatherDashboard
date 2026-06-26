@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import ChatWindow from '../Components/ChatWindow'
 import ChatInput from '../Components/ChatInput'
 import SuggestedQuestions from '../Components/SuggestedQuestions'
-import { sendChatMessage } from '../Services/chatService'
+import { sendChatMessage } from '../Services/ChatSErvice'
 
 const AIChatbotPage = ({ currentCity }) => {
   const [messages, setMessages] = useState([])

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { getFarmerAdvisory } from '../Services/farmerService'
+import { getFarmerAdvisory } from '../Services/FarmerService'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 const RiskBar = ({ score, level }) => {

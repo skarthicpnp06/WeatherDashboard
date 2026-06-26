@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { getWeatherData, getCitySuggestions } from '../Services/weatherservice'
-import { useDebounce } from '../Hooks/useDebounce'
+import { useDebounce } from '../Hooks/usedebounce'
 import Loader from '../Components/Loader'
 import Errormessage from '../Components/Errormessage'
 import {
