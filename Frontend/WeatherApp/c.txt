@@ -12,89 +12,327 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.5</version>
-		<relativePath/>
-	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>Backend</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>Backend</name>
-	<description>SkySync Weather Engine Backend</description>
-	<properties>
-		<java.version>17</java.version>
-	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+        <relativePath/>
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>Backend</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>Backend</name>
+    <description>SkySync Weather Engine Backend</description>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+               </plugins>
+    </build>
 </project>
-
 
 spring.application.name=Backend
 
-# 1. Clever Cloud MySQL Database Connection Config (With secure local fallbacks)
-spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://bhan6nzyxfhly6se7hla-mysql.services.clever-cloud.com:3306/bhan6nzyxfhly6se7hla?useSSL=false&allowPublicKeyRetrieval=true}
-spring.datasource.username=${SPRING_DATASOURCE_USERNAME:ugks0d2e2sxpzsgf}
-spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:cEtRdzpMgj3juTytx3Z0}
+spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://bhan6nzyxfhly6se7hla-mysql.services.clever-cloud.com:3306/bhan6nzyxfhly6se7hla?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&cachePrepStmts=true&prepStmtCacheSize=250&prepStmtCacheSqlLimit=2048&useServerPrepStmts=true}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-# 2. Hibernate Settings
 spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
+spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+spring.jpa.open-in-view=false
+spring.jpa.properties.hibernate.jdbc.batch_size=20
+spring.jpa.properties.hibernate.order_inserts=true
+spring.jpa.properties.hibernate.order_updates=true
+spring.jpa.properties.hibernate.generate_statistics=false
 
-# 3. Third-Party Weather API Authentication Keys
-openweathermap.api.key=${OPENWEATHER_API_KEY:f5e923868577018c7a11ff3623dafb41}
-weatherapi.key=${WEATHERAPI_KEY:4d2f4f3e0060493d95860505262705}
+openweathermap.api.key=${OPENWEATHER_API_KEY}
+weatherapi.key=${WEATHERAPI_KEY}
+anthropic.api.key=${ANTHROPIC_API_KEY}
+admin.password=${ADMIN_PASSWORD}
 
-# 4. Outbound Mail Engine Server Parameters
 spring.mail.host=${SPRING_MAIL_HOST:smtp.gmail.com}
 spring.mail.port=${SPRING_MAIL_PORT:587}
-spring.mail.username=${SPRING_MAIL_USERNAME:skarthicpnp06@gmail.com}
-spring.mail.password=${SPRING_MAIL_PASSWORD:hkga wsea isqt ijbh}
+spring.mail.username=${SPRING_MAIL_USERNAME}
+spring.mail.password=${SPRING_MAIL_PASSWORD}
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
-# 5. Security CORS Mapping Access Rules
-cors.allowed-origins=${CORS_ALLOWED_ORIGINS:*}
-
-# Force HikariCP to stay under the 5 connection limit
 spring.datasource.hikari.maximum-pool-size=3
 spring.datasource.hikari.minimum-idle=1
 spring.datasource.hikari.idle-timeout=10000
+spring.datasource.hikari.connection-timeout=20000
+spring.datasource.hikari.max-lifetime=1800000
+spring.datasource.hikari.pool-name=SkySyncHikariPool
+spring.datasource.hikari.validation-timeout=5000
+spring.datasource.hikari.connection-test-query=SELECT 1
+spring.datasource.hikari.leak-detection-threshold=15000
+
+spring.cache.type=simple
+spring.cache.cache-names=weatherCache,historyCache,suggestionCache
+
+server.port=${PORT:8080}
+server.compression.enabled=true
+server.compression.mime-types=application/json,application/xml,text/html,text/plain
+server.tomcat.threads.max=50
+server.tomcat.threads.min-spare=5
+
+logging.level.org.hibernate.SQL=WARN
+logging.level.com.zaxxer.hikari=WARN
+logging.level.com.example.Backend=INFO
+logging.level.org.springframework.web=WARN
+
+package com.example.Backend.Model;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "chat_history", indexes = {
+    @Index(name = "idx_chat_city", columnList = "city"),
+    @Index(name = "idx_chat_timestamp", columnList = "timestamp")
+})
+public class Chathistoryentity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chat_id")
+    private Long chatId;
+
+    @Column(name = "question", length = 2000)
+    private String question;
+
+    @Column(name = "answer", length = 6000)
+    private String answer;
+
+    @Column(name = "city", length = 100)
+    private String city;
+
+    @Column(name = "timestamp")
+    private LocalDateTime timestamp;
+
+    public Chathistoryentity() {}
+
+    public Long getChatId() { return chatId; }
+    public void setChatId(Long chatId) { this.chatId = chatId; }
+    public String getQuestion() { return question; }
+    public void setQuestion(String question) { this.question = question; }
+    public String getAnswer() { return answer; }
+    public void setAnswer(String answer) { this.answer = answer; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+}
+
+
+package com.example.Backend.Model;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "farmer_advisory_history", indexes = {
+    @Index(name = "idx_farmer_city", columnList = "city")
+})
+public class Farmeradvisoryhistoryentity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 2000)
+    private String recommendation;
+
+    @Column(name = "risk_level", length = 20)
+    private String riskLevel;
+
+    @Column(name = "crops_suggested", length = 500)
+    private String cropsSuggested;
+
+    @Column(name = "generated_at")
+    private LocalDateTime generatedAt;
+
+    public Farmeradvisoryhistoryentity() {}
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+    public String getRecommendation() { return recommendation; }
+    public void setRecommendation(String recommendation) { this.recommendation = recommendation; }
+    public String getRiskLevel() { return riskLevel; }
+    public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; }
+    public String getCropsSuggested() { return cropsSuggested; }
+    public void setCropsSuggested(String cropsSuggested) { this.cropsSuggested = cropsSuggested; }
+    public LocalDateTime getGeneratedAt() { return generatedAt; }
+    public void setGeneratedAt(LocalDateTime generatedAt) { this.generatedAt = generatedAt; }
+}
+
+package com.example.Backend.Model;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "disaster_alerts", indexes = {
+    @Index(name = "idx_disaster_city", columnList = "city"),
+    @Index(name = "idx_disaster_severity", columnList = "severity")
+})
+public class DisasterAlertEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(name = "alert_type", length = 50)
+    private String alertType;
+
+    @Column(length = 20)
+    private String severity;
+
+    @Column(length = 1000)
+    private String description;
+
+    @Column(name = "risk_score")
+    private int riskScore;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    public DisasterAlertEntity() {}
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+    public String getAlertType() { return alertType; }
+    public void setAlertType(String alertType) { this.alertType = alertType; }
+    public String getSeverity() { return severity; }
+    public void setSeverity(String severity) { this.severity = severity; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public int getRiskScore() { return riskScore; }
+    public void setRiskScore(int riskScore) { this.riskScore = riskScore; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+}
+
+
+package com.example.Backend.Model;
+
+import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "disaster_history", indexes = {
+    @Index(name = "idx_dis_hist_city", columnList = "city")
+})
+public class DisasterHistoryEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(name = "event_type", length = 50)
+    private String eventType;
+
+    private LocalDate date;
+
+    @Column(length = 1000)
+    private String impact;
+
+    public DisasterHistoryEntity() {}
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+    public String getEventType() { return eventType; }
+    public void setEventType(String eventType) { this.eventType = eventType; }
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
+    public String getImpact() { return impact; }
+    public void setImpact(String impact) { this.impact = impact; }
+}
+
 
 package com.example.Backend.Controller;
 
@@ -293,6 +531,752 @@ public class WeatherEntity {
     public void setPrecipitation(double precipitation) { this.precipitation = precipitation; }
 }
 
+package com.example.Backend.Repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.example.Backend.Model.Chathistoryentity;
+
+@Repository
+public interface ChatHistoryRepository extends JpaRepository<Chathistoryentity, Long> {
+    List<Chathistoryentity> findTop10ByOrderByTimestampDesc();
+    long count();
+
+    @Query("SELECT COUNT(c) FROM Chathistoryentity c")
+    long countAllChats();
+}
+
+package com.example.Backend.Repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.example.Backend.Model.DisasterAlertEntity;
+
+@Repository
+public interface DisasterAlertRepository extends JpaRepository<DisasterAlertEntity, Long> {
+    List<DisasterAlertEntity> findByCityOrderByCreatedAtDesc(String city);
+    List<DisasterAlertEntity> findTop10ByOrderByCreatedAtDesc();
+    long count();
+
+    @Query("SELECT d.alertType, COUNT(d) FROM DisasterAlertEntity d GROUP BY d.alertType ORDER BY COUNT(d) DESC")
+    List<Object[]> findAlertTypeFrequency();
+}
+
+package com.example.Backend.Repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.example.Backend.Model.DisasterHistoryEntity;
+
+@Repository
+public interface DisasterHistoryRepository extends JpaRepository<DisasterHistoryEntity, Long> {
+    List<DisasterHistoryEntity> findByCityOrderByDateDesc(String city);
+    long count();
+}
+
+package com.example.Backend.Repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.example.Backend.Model.Farmeradvisoryhistoryentity;
+
+@Repository
+public interface FarmerAdvisoryHistoryRepository extends JpaRepository<Farmeradvisoryhistoryentity, Long> {
+    List<Farmeradvisoryhistoryentity> findTop10ByOrderByGeneratedAtDesc();
+    long count();
+}
+
+package com.example.Backend.Service;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.example.Backend.DTO.ChatRequestDTO;
+import com.example.Backend.DTO.ChatResponseDTO;
+import com.example.Backend.Model.Chathistoryentity;
+import com.example.Backend.Model.WeatherEntity;
+import com.example.Backend.Repository.ChatHistoryRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@Service
+public class ChatService {
+
+    @Value("${anthropic.api.key}")
+    private String anthropicApiKey;
+
+    @Autowired
+    private ChatHistoryRepository chatHistoryRepository;
+
+    @Autowired
+    private WeatherService weatherService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private final HttpClient httpClient = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(10))
+        .build();
+
+    public ChatResponseDTO processMessage(ChatRequestDTO request) {
+        String weatherContext = buildWeatherContext(request.getCity());
+        String systemPrompt = buildSystemPrompt(weatherContext);
+        String answer = callAnthropicAPI(systemPrompt, request.getMessage());
+
+        Chathistoryentity history = new Chathistoryentity();
+        history.setQuestion(request.getMessage());
+        history.setAnswer(answer);
+        history.setCity(request.getCity() != null ? request.getCity().trim().toLowerCase() : null);
+        history.setTimestamp(LocalDateTime.now());
+        Chathistoryentity saved = chatHistoryRepository.save(history);
+
+        return new ChatResponseDTO(answer, request.getCity(), LocalDateTime.now(), saved.getChatId());
+    }
+
+    private String buildWeatherContext(String city) {
+        if (city == null || city.trim().isEmpty()) return "";
+        try {
+            WeatherEntity w = weatherService.getWeather(city);
+            return String.format(
+                "Live weather for %s: Temp=%.1f°C, Feels like=%.1f°C, Humidity=%d%%, " +
+                "Wind=%.1f m/s, Condition=%s, AQI=%d, Precipitation=%.2fmm.",
+                city, w.getTemparature(), w.getFeelsLike(), w.getHumidity(),
+                w.getWindSpeed(), w.getDescription(), w.getAqi(), w.getPrecipitation()
+            );
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String buildSystemPrompt(String weatherContext) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("You are SkySync AI, an intelligent weather assistant embedded in a weather intelligence platform. ");
+        sb.append("You provide accurate, concise, and helpful advice on: current weather conditions, ");
+        sb.append("rain prediction, AQI and air quality advice, travel recommendations, health warnings, ");
+        sb.append("clothing suggestions, disaster preparedness (cyclones, floods, heatwaves), ");
+        sb.append("and agricultural/farmer advisories (crop suitability, irrigation, harvest). ");
+        sb.append("Be professional, friendly, and practical. Keep responses under 200 words. ");
+        sb.append("Use bullet points for lists. If you don't have enough data, say so clearly. ");
+        if (!weatherContext.isEmpty()) {
+            sb.append("\n\nCurrent Live Data: ").append(weatherContext);
+        }
+        return sb.toString();
+    }
+
+    private String callAnthropicAPI(String systemPrompt, String userMessage) {
+        try {
+            Map<String, Object> requestBody = new LinkedHashMap<>();
+            requestBody.put("model", "claude-sonnet-4-6");
+            requestBody.put("max_tokens", 1000);
+            requestBody.put("system", systemPrompt);
+
+            List<Map<String, String>> messages = new ArrayList<>();
+            Map<String, String> userMsg = new HashMap<>();
+            userMsg.put("role", "user");
+            userMsg.put("content", userMessage);
+            messages.add(userMsg);
+            requestBody.put("messages", messages);
+
+            String jsonBody = objectMapper.writeValueAsString(requestBody);
+
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.anthropic.com/v1/messages"))
+                .header("Content-Type", "application/json")
+                .header("x-api-key", anthropicApiKey)
+                .header("anthropic-version", "2023-06-01")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .timeout(Duration.ofSeconds(30))
+                .build();
+
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                Map<String, Object> responseBody = objectMapper.readValue(response.body(), Map.class);
+                List<Map<String, Object>> content = (List<Map<String, Object>>) responseBody.get("content");
+                if (content != null && !content.isEmpty()) {
+                    return (String) content.get(0).get("text");
+                }
+            }
+            return "I'm having trouble processing your request right now. Please try again shortly.";
+        } catch (Exception e) {
+            System.err.println("Anthropic API error: " + e.getMessage());
+            return "SkySync AI is temporarily unavailable. Please try again in a moment.";
+        }
+    }
+
+    public List<Chathistoryentity> getRecentChats() {
+        return chatHistoryRepository.findTop10ByOrderByTimestampDesc();
+    }
+}
+
+package com.example.Backend.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.Backend.DTO.FarmerAdvisoryDTO;
+import com.example.Backend.Model.Farmeradvisoryhistoryentity;
+import com.example.Backend.Model.WeatherEntity;
+import com.example.Backend.Repository.FarmerAdvisoryHistoryRepository;
+
+@Service
+public class FarmerService {
+
+    @Autowired
+    private WeatherService weatherService;
+
+    @Autowired
+    private FarmerAdvisoryHistoryRepository advisoryHistoryRepository;
+
+    public FarmerAdvisoryDTO generateAdvisory(String city) {
+        WeatherEntity weather;
+        try {
+            weather = weatherService.getWeather(city);
+        } catch (Exception e) {
+            weather = new WeatherEntity(city, 28.0, "Partly Cloudy", 65, 3.0, "Fallback");
+        }
+
+        FarmerAdvisoryDTO advisory = new FarmerAdvisoryDTO();
+        advisory.setCity(city);
+        advisory.setTemperature(weather.getTemparature());
+        advisory.setHumidity(weather.getHumidity());
+        advisory.setPrecipitation(weather.getPrecipitation());
+        advisory.setWindSpeed(weather.getWindSpeed());
+        advisory.setWeatherDescription(weather.getDescription());
+        advisory.setSeason(detectSeason());
+        advisory.setRecommendedCrops(getCropRecommendations(weather));
+        advisory.setIrrigationAdvice(getIrrigationAdvice(weather));
+        advisory.setHarvestWarning(getHarvestWarning(weather));
+        advisory.setRiskScore(calculateRiskScore(weather));
+        advisory.setRiskLevel(getRiskLevel(advisory.getRiskScore()));
+        advisory.setDroughtAlert(isDroughtAlert(weather));
+        advisory.setSoilMoistureStatus(getSoilMoistureStatus(weather));
+        advisory.setFertilizerRecommendation(getFertilizerRecommendation(weather));
+        advisory.setPestRisk(getPestRisk(weather));
+
+        Farmeradvisoryhistoryentity history = new Farmeradvisoryhistoryentity();
+        history.setCity(city.trim().toLowerCase());
+        history.setRecommendation(advisory.getIrrigationAdvice() + " | " + advisory.getHarvestWarning());
+        history.setRiskLevel(advisory.getRiskLevel());
+        history.setCropsSuggested(String.join(", ", advisory.getRecommendedCrops()));
+        history.setGeneratedAt(LocalDateTime.now());
+        advisoryHistoryRepository.save(history);
+
+        return advisory;
+    }
+
+    private String detectSeason() {
+        int month = LocalDate.now().getMonthValue();
+        if (month >= 6 && month <= 10) return "Kharif (Monsoon)";
+        if (month >= 11 || month <= 3) return "Rabi (Winter)";
+        return "Zaid (Summer)";
+    }
+
+    private List<String> getCropRecommendations(WeatherEntity weather) {
+        List<String> crops = new ArrayList<>();
+        double temp = weather.getTemparature();
+        int humidity = weather.getHumidity();
+        double rain = weather.getPrecipitation();
+        String season = detectSeason();
+
+        if (temp >= 20 && temp <= 35 && humidity >= 60 && season.contains("Kharif")) {
+            crops.add("Rice");
+            crops.add("Sugarcane");
+        }
+        if (temp >= 10 && temp <= 25 && season.contains("Rabi")) {
+            crops.add("Wheat");
+            crops.add("Barley");
+            crops.add("Mustard");
+        }
+        if (temp >= 25 && temp <= 40 && humidity < 65) {
+            crops.add("Cotton");
+            crops.add("Groundnut");
+        }
+        if (temp >= 18 && temp <= 32) {
+            crops.add("Maize");
+            crops.add("Soybeans");
+        }
+        if (temp >= 20 && temp <= 30 && humidity >= 55) {
+            crops.add("Tomatoes");
+            crops.add("Brinjal");
+        }
+        if (temp >= 22 && temp <= 35 && humidity >= 60 && rain > 1) {
+            crops.add("Green Gram");
+            crops.add("Black Gram");
+        }
+        if (crops.isEmpty()) {
+            crops.add("Drought-resistant Millets");
+            crops.add("Sorghum");
+        }
+        return crops;
+    }
+
+    private String getIrrigationAdvice(WeatherEntity weather) {
+        double rain = weather.getPrecipitation();
+        int humidity = weather.getHumidity();
+        double temp = weather.getTemparature();
+        if (rain > 8.0) return "No Irrigation Required — Heavy rainfall detected. Ensure proper drainage.";
+        if (rain > 4.0) return "Delay Irrigation — Moderate rainfall is sufficient. Monitor soil moisture.";
+        if (humidity > 80) return "Moderate Irrigation — High ambient humidity reduces water requirement by 30%.";
+        if (temp > 38) return "Urgent Irrigation Required — Extreme heat causing rapid soil moisture loss.";
+        if (temp > 32 && humidity < 40) return "Increased Irrigation Needed — Hot and dry conditions detected.";
+        return "Standard Irrigation Schedule — Apply water every 3-4 days based on crop type.";
+    }
+
+    private String getHarvestWarning(WeatherEntity weather) {
+        double rain = weather.getPrecipitation();
+        double wind = weather.getWindSpeed();
+        double temp = weather.getTemparature();
+        if (rain > 10.0 || wind > 18) return "CRITICAL — Severe weather incoming. Harvest immediately if crops are mature.";
+        if (rain > 6.0 || wind > 12) return "WARNING — Heavy rain or wind expected. Expedite harvest within 24 hours.";
+        if (temp > 40) return "HEAT ALERT — Extreme temperature may damage crops. Monitor closely and harvest mature crops.";
+        if (rain < 0.5 && weather.getHumidity() < 25) return "DROUGHT CONCERN — Prolonged dry spell. Consider early harvest for moisture-sensitive crops.";
+        return "Conditions are favorable — Proceed with normal harvest schedule.";
+    }
+
+    private int calculateRiskScore(WeatherEntity weather) {
+        int score = 0;
+        if (weather.getPrecipitation() > 10) score += 30;
+        else if (weather.getPrecipitation() > 5) score += 15;
+        if (weather.getTemparature() > 40) score += 28;
+        else if (weather.getTemparature() < 8) score += 22;
+        else if (weather.getTemparature() > 35) score += 12;
+        if (weather.getWindSpeed() > 18) score += 25;
+        else if (weather.getWindSpeed() > 12) score += 12;
+        if (weather.getHumidity() > 92) score += 17;
+        else if (weather.getHumidity() < 15) score += 14;
+        return Math.min(score, 100);
+    }
+
+    private String getRiskLevel(int score) {
+        if (score >= 70) return "HIGH";
+        if (score >= 40) return "MEDIUM";
+        return "LOW";
+    }
+
+    private boolean isDroughtAlert(WeatherEntity weather) {
+        return weather.getPrecipitation() < 0.5 && weather.getHumidity() < 30 && weather.getTemparature() > 32;
+    }
+
+    private String getSoilMoistureStatus(WeatherEntity weather) {
+        if (weather.getPrecipitation() > 6) return "Saturated — Risk of waterlogging";
+        if (weather.getPrecipitation() > 3) return "Adequate — Good for most crops";
+        if (weather.getHumidity() > 70) return "Moderate — Monitor regularly";
+        if (weather.getTemparature() > 36) return "Low — Rapid evaporation occurring";
+        return "Moderate — Within acceptable range";
+    }
+
+    private String getFertilizerRecommendation(WeatherEntity weather) {
+        if (weather.getPrecipitation() > 8) return "Avoid fertilizer application — Heavy rain will cause nutrient runoff.";
+        if (weather.getTemparature() > 38) return "Apply foliar micronutrients early morning — High temp reduces absorption.";
+        if (weather.getHumidity() > 85) return "Avoid urea application — High humidity increases volatilization losses.";
+        return "Optimal conditions for basal fertilizer application — Apply NPK as recommended.";
+    }
+
+    private String getPestRisk(WeatherEntity weather) {
+        if (weather.getHumidity() > 85 && weather.getTemparature() > 25) return "HIGH — Fungal disease and pest pressure elevated. Apply preventive fungicide.";
+        if (weather.getHumidity() > 70 && weather.getTemparature() > 22) return "MEDIUM — Monitor for aphids, whiteflies, and fungal spots.";
+        if (weather.getTemparature() > 35 && weather.getHumidity() < 40) return "MEDIUM — Risk of spider mites and thrips in dry conditions.";
+        return "LOW — Conditions not conducive to major pest outbreaks.";
+    }
+}
+
+package com.example.Backend;
+
+import java.util.Arrays;
+
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class CacheConfig {
+
+    @Bean
+    public CacheManager cacheManager() {
+        ConcurrentMapCacheManager manager = new ConcurrentMapCacheManager();
+        manager.setCacheNames(Arrays.asList("weatherCache", "historyCache", "suggestionCache"));
+        manager.setAllowNullValues(false);
+        return manager;
+    }
+}
+
+package com.example.Backend.DTO;
+
+import java.util.List;
+import java.util.Map;
+
+public class AdminStatsDTO {
+
+    private long totalSearches;
+    private long totalChatRequests;
+    private long totalActiveAlerts;
+    private long totalFarmerAdvisories;
+    private long totalDisasterAlerts;
+    private long distinctCities;
+    private long totalDistinctUsers;
+    private String databaseStatus;
+    private String databaseDetails;
+    private List<Map<String, Object>> topSearchedCities;
+    private List<Map<String, Object>> recentChatHistory;
+    private List<Map<String, Object>> recentDisasterAlerts;
+    private List<Map<String, Object>> alertTypeFrequency;
+
+    public AdminStatsDTO() {}
+
+    public long getTotalSearches() { return totalSearches; }
+    public void setTotalSearches(long totalSearches) { this.totalSearches = totalSearches; }
+    public long getTotalChatRequests() { return totalChatRequests; }
+    public void setTotalChatRequests(long totalChatRequests) { this.totalChatRequests = totalChatRequests; }
+    public long getTotalActiveAlerts() { return totalActiveAlerts; }
+    public void setTotalActiveAlerts(long totalActiveAlerts) { this.totalActiveAlerts = totalActiveAlerts; }
+    public long getTotalFarmerAdvisories() { return totalFarmerAdvisories; }
+    public void setTotalFarmerAdvisories(long totalFarmerAdvisories) { this.totalFarmerAdvisories = totalFarmerAdvisories; }
+    public long getTotalDisasterAlerts() { return totalDisasterAlerts; }
+    public void setTotalDisasterAlerts(long totalDisasterAlerts) { this.totalDisasterAlerts = totalDisasterAlerts; }
+    public long getDistinctCities() { return distinctCities; }
+    public void setDistinctCities(long distinctCities) { this.distinctCities = distinctCities; }
+    public long getTotalDistinctUsers() { return totalDistinctUsers; }
+    public void setTotalDistinctUsers(long totalDistinctUsers) { this.totalDistinctUsers = totalDistinctUsers; }
+    public String getDatabaseStatus() { return databaseStatus; }
+    public void setDatabaseStatus(String databaseStatus) { this.databaseStatus = databaseStatus; }
+    public String getDatabaseDetails() { return databaseDetails; }
+    public void setDatabaseDetails(String databaseDetails) { this.databaseDetails = databaseDetails; }
+    public List<Map<String, Object>> getTopSearchedCities() { return topSearchedCities; }
+    public void setTopSearchedCities(List<Map<String, Object>> topSearchedCities) { this.topSearchedCities = topSearchedCities; }
+    public List<Map<String, Object>> getRecentChatHistory() { return recentChatHistory; }
+    public void setRecentChatHistory(List<Map<String, Object>> recentChatHistory) { this.recentChatHistory = recentChatHistory; }
+    public List<Map<String, Object>> getRecentDisasterAlerts() { return recentDisasterAlerts; }
+    public void setRecentDisasterAlerts(List<Map<String, Object>> recentDisasterAlerts) { this.recentDisasterAlerts = recentDisasterAlerts; }
+    public List<Map<String, Object>> getAlertTypeFrequency() { return alertTypeFrequency; }
+    public void setAlertTypeFrequency(List<Map<String, Object>> alertTypeFrequency) { this.alertTypeFrequency = alertTypeFrequency; }
+}
+
+
+package com.example.Backend.DTO;
+
+public class ChatRequestDTO {
+
+    private String message;
+    private String city;
+
+    public ChatRequestDTO() {}
+
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+}
+
+package com.example.Backend.DTO;
+
+import java.time.LocalDateTime;
+
+public class ChatResponseDTO {
+
+    private String answer;
+    private String city;
+    private LocalDateTime timestamp;
+    private Long chatId;
+
+    public ChatResponseDTO() {}
+
+    public ChatResponseDTO(String answer, String city, LocalDateTime timestamp, Long chatId) {
+        this.answer = answer;
+        this.city = city;
+        this.timestamp = timestamp;
+        this.chatId = chatId;
+    }
+
+    public String getAnswer() { return answer; }
+    public void setAnswer(String answer) { this.answer = answer; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public Long getChatId() { return chatId; }
+    public void setChatId(Long chatId) { this.chatId = chatId; }
+}
+
+
+package com.example.Backend.DTO;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+public class DisasterAlertDTO {
+
+    private String city;
+    private int cycloneRisk;
+    private int floodRisk;
+    private int heatwaveRisk;
+    private int thunderstormRisk;
+    private int landslideRisk;
+    private int heavyRainRisk;
+    private int overallRiskScore;
+    private String overallRiskLevel;
+    private String overallRiskColor;
+    private List<String> activeAlertTypes;
+    private Map<String, String> instructions;
+    private LocalDateTime timestamp;
+    private double latitude;
+    private double longitude;
+    private Map<String, Object> emergencyContacts;
+
+    public DisasterAlertDTO() {}
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+    public int getCycloneRisk() { return cycloneRisk; }
+    public void setCycloneRisk(int cycloneRisk) { this.cycloneRisk = cycloneRisk; }
+    public int getFloodRisk() { return floodRisk; }
+    public void setFloodRisk(int floodRisk) { this.floodRisk = floodRisk; }
+    public int getHeatwaveRisk() { return heatwaveRisk; }
+    public void setHeatwaveRisk(int heatwaveRisk) { this.heatwaveRisk = heatwaveRisk; }
+    public int getThunderstormRisk() { return thunderstormRisk; }
+    public void setThunderstormRisk(int thunderstormRisk) { this.thunderstormRisk = thunderstormRisk; }
+    public int getLandslideRisk() { return landslideRisk; }
+    public void setLandslideRisk(int landslideRisk) { this.landslideRisk = landslideRisk; }
+    public int getHeavyRainRisk() { return heavyRainRisk; }
+    public void setHeavyRainRisk(int heavyRainRisk) { this.heavyRainRisk = heavyRainRisk; }
+    public int getOverallRiskScore() { return overallRiskScore; }
+    public void setOverallRiskScore(int overallRiskScore) { this.overallRiskScore = overallRiskScore; }
+    public String getOverallRiskLevel() { return overallRiskLevel; }
+    public void setOverallRiskLevel(String overallRiskLevel) { this.overallRiskLevel = overallRiskLevel; }
+    public String getOverallRiskColor() { return overallRiskColor; }
+    public void setOverallRiskColor(String overallRiskColor) { this.overallRiskColor = overallRiskColor; }
+    public List<String> getActiveAlertTypes() { return activeAlertTypes; }
+    public void setActiveAlertTypes(List<String> activeAlertTypes) { this.activeAlertTypes = activeAlertTypes; }
+    public Map<String, String> getInstructions() { return instructions; }
+    public void setInstructions(Map<String, String> instructions) { this.instructions = instructions; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public double getLatitude() { return latitude; }
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+    public double getLongitude() { return longitude; }
+    public void setLongitude(double longitude) { this.longitude = longitude; }
+    public Map<String, Object> getEmergencyContacts() { return emergencyContacts; }
+    public void setEmergencyContacts(Map<String, Object> emergencyContacts) { this.emergencyContacts = emergencyContacts; }
+}
+
+
+package com.example.Backend.DTO;
+
+import java.util.List;
+
+public class FarmerAdvisoryDTO {
+
+    private String city;
+    private double temperature;
+    private int humidity;
+    private double precipitation;
+    private double windSpeed;
+    private String weatherDescription;
+    private List<String> recommendedCrops;
+    private String irrigationAdvice;
+    private String harvestWarning;
+    private int riskScore;
+    private String riskLevel;
+    private boolean droughtAlert;
+    private String season;
+    private String soilMoistureStatus;
+    private String fertilizerRecommendation;
+    private String pestRisk;
+
+    public FarmerAdvisoryDTO() {}
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+    public double getTemperature() { return temperature; }
+    public void setTemperature(double temperature) { this.temperature = temperature; }
+    public int getHumidity() { return humidity; }
+    public void setHumidity(int humidity) { this.humidity = humidity; }
+    public double getPrecipitation() { return precipitation; }
+    public void setPrecipitation(double precipitation) { this.precipitation = precipitation; }
+    public double getWindSpeed() { return windSpeed; }
+    public void setWindSpeed(double windSpeed) { this.windSpeed = windSpeed; }
+    public String getWeatherDescription() { return weatherDescription; }
+    public void setWeatherDescription(String weatherDescription) { this.weatherDescription = weatherDescription; }
+    public List<String> getRecommendedCrops() { return recommendedCrops; }
+    public void setRecommendedCrops(List<String> recommendedCrops) { this.recommendedCrops = recommendedCrops; }
+    public String getIrrigationAdvice() { return irrigationAdvice; }
+    public void setIrrigationAdvice(String irrigationAdvice) { this.irrigationAdvice = irrigationAdvice; }
+    public String getHarvestWarning() { return harvestWarning; }
+    public void setHarvestWarning(String harvestWarning) { this.harvestWarning = harvestWarning; }
+    public int getRiskScore() { return riskScore; }
+    public void setRiskScore(int riskScore) { this.riskScore = riskScore; }
+    public String getRiskLevel() { return riskLevel; }
+    public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; }
+    public boolean isDroughtAlert() { return droughtAlert; }
+    public void setDroughtAlert(boolean droughtAlert) { this.droughtAlert = droughtAlert; }
+    public String getSeason() { return season; }
+    public void setSeason(String season) { this.season = season; }
+    public String getSoilMoistureStatus() { return soilMoistureStatus; }
+    public void setSoilMoistureStatus(String soilMoistureStatus) { this.soilMoistureStatus = soilMoistureStatus; }
+    public String getFertilizerRecommendation() { return fertilizerRecommendation; }
+    public void setFertilizerRecommendation(String fertilizerRecommendation) { this.fertilizerRecommendation = fertilizerRecommendation; }
+    public String getPestRisk() { return pestRisk; }
+    public void setPestRisk(String pestRisk) { this.pestRisk = pestRisk; }
+}
+
+package com.example.Backend.Exception;
+
+import java.time.LocalDateTime;
+
+public class ErrorResponse {
+
+    private LocalDateTime timestamp;
+    private int status;
+    private String error;
+    private String message;
+    private String path;
+
+    public ErrorResponse() {}
+
+    public ErrorResponse(LocalDateTime timestamp, int status, String error, String message, String path) {
+        this.timestamp = timestamp;
+        this.status = status;
+        this.error = error;
+        this.message = message;
+        this.path = path;
+    }
+
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public int getStatus() { return status; }
+    public void setStatus(int status) { this.status = status; }
+    public String getError() { return error; }
+    public void setError(String error) { this.error = error; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+    public String getPath() { return path; }
+    public void setPath(String path) { this.path = path; }
+}
+
+package com.example.Backend.Exception;
+
+import java.time.LocalDateTime;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(WeatherNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleWeatherNotFound(WeatherNotFoundException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.NOT_FOUND.value(),
+            "Not Found",
+            ex.getMessage(),
+            request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRequest(InvalidRequestException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            "Bad Request",
+            ex.getMessage(),
+            request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParams(MissingServletRequestParameterException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            "Bad Request",
+            "Required parameter '" + ex.getParameterName() + "' is missing.",
+            request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.METHOD_NOT_ALLOWED.value(),
+            "Method Not Allowed",
+            ex.getMessage(),
+            request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(error, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "Internal Server Error",
+            "An unexpected error occurred. Please try again shortly.",
+            request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+
+package com.example.Backend.Exception;
+
+public class InvalidRequestException extends RuntimeException {
+    public InvalidRequestException(String message) {
+        super(message);
+    }
+}
+
+package com.example.Backend.Exception;
+
+public class InvalidRequestException extends RuntimeException {
+    public InvalidRequestException(String message) {
+        super(message);
+    }
+}
 
 package com.example.Backend.Repository;
 
@@ -2078,99 +3062,3 @@ Backend url  : https://weatherdashboard-1-5tai.onrender.com
 
 Frontend url : https://weather-dashboard-987s.vercel.app/
 
-This is what the error i have while deploying my frontend is working but my backend is not working its always shows like this 
-
-Access to fetch at 'https://weatherdashboard-1-5tai.onrender.com/weather?city=coimbatore' from origin 'https://weather-dashboard-987s.vercel.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
-index-BvPLtUss.js:9  GET https://weatherdashboard-1-5tai.onrender.com/weather?city=coimbatore net::ERR_FAILED 403 (Forbidden)
-x @ index-BvPLtUss.js:9
-(anonymous) @ index-BvPLtUss.js:9
-(anonymous) @ index-BvPLtUss.js:9
-Hc @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Gu @ index-BvPLtUss.js:8
-(anonymous) @ index-BvPLtUss.js:8
-D @ index-BvPLtUss.js:1
-postMessage
-O @ index-BvPLtUss.js:1
-D @ index-BvPLtUss.js:1
-postMessage
-O @ index-BvPLtUss.js:1
-e.unstable_scheduleCallback @ index-BvPLtUss.js:1
-ld @ index-BvPLtUss.js:8
-cd @ index-BvPLtUss.js:8
-(anonymous) @ index-BvPLtUss.js:8
-index-BvPLtUss.js:9 Startup default query error:  TypeError: Failed to fetch
-    at x (index-BvPLtUss.js:9:36678)
-    at index-BvPLtUss.js:9:40825
-    at index-BvPLtUss.js:9:40910
-    at Hc (index-BvPLtUss.js:8:91831)
-    at Ol (index-BvPLtUss.js:8:106981)
-    at Dl (index-BvPLtUss.js:8:106865)
-    at Ol (index-BvPLtUss.js:8:107745)
-    at Dl (index-BvPLtUss.js:8:106865)
-    at Ol (index-BvPLtUss.js:8:107745)
-    at Dl (index-BvPLtUss.js:8:106865)
-(anonymous) @ index-BvPLtUss.js:9
-await in (anonymous)
-(anonymous) @ index-BvPLtUss.js:9
-Hc @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Dl @ index-BvPLtUss.js:8
-Ol @ index-BvPLtUss.js:8
-Gu @ index-BvPLtUss.js:8
-(anonymous) @ index-BvPLtUss.js:8
-D @ index-BvPLtUss.js:1
-postMessage
-O @ index-BvPLtUss.js:1
-D @ index-BvPLtUss.js:1
-postMessage
-O @ index-BvPLtUss.js:1
-e.unstable_scheduleCallback @ index-BvPLtUss.js:1
-ld @ index-BvPLtUss.js:8
-cd @ index-BvPLtUss.js:8
-(anonymous) @ index-BvPLtUss.js:8
-(index):1 Access to fetch at 'https://weatherdashboard-1-5tai.onrender.com/weather?city=Chennai' from origin 'https://weather-dashboard-987s.vercel.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
-index-BvPLtUss.js:9  GET https://weatherdashboard-1-5tai.onrender.com/weather?city=Chennai net::ERR_FAILED 403 (Forbidden)
-x @ index-BvPLtUss.js:9
-onSubmit @ index-BvPLtUss.js:9
-xd @ index-BvPLtUss.js:8
-(anonymous) @ index-BvPLtUss.js:8
-un @ index-BvPLtUss.js:8
-Ed @ index-BvPLtUss.js:8
-pp @ index-BvPLtUss.js:9
-dp @ index-BvPLtUss.js:9
-index-BvPLtUss.js:9 Dashboard Resolution Fault:  TypeError: Failed to fetch
-    at x (index-BvPLtUss.js:9:36678)
-    at onSubmit (index-BvPLtUss.js:9:41305)
-    at xd (index-BvPLtUss.js:8:126173)
-    at index-BvPLtUss.js:8:131166
-    at un (index-BvPLtUss.js:8:15076)
-    at Ed (index-BvPLtUss.js:8:127400)
-    at pp (index-BvPLtUss.js:9:28475)
-    at dp (index-BvPLtUss.js:9:28297)
-onSubmit @ index-BvPLtUss.js:9
-await in onSubmit
-xd @ index-BvPLtUss.js:8
-(anonymous) @ index-BvPLtUss.js:8
-un @ index-BvPLtUss.js:8
-Ed @ index-BvPLtUss.js:8
-pp @ index-BvPLtUss.js:9
-dp @ index-BvPLtUss.js:9
